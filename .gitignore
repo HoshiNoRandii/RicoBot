@@ -3,6 +3,7 @@
 
 ## Undo files made by Vim
 ## and other temp files
+*.swp
 *.un~
 *~
 
