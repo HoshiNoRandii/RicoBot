@@ -1,7 +1,9 @@
 ### lightly modified from GitHub's .gitignore templates ###
 ## my edits will have a ## comment
 
-## didn't want to keep committing what I'm pretty sure are temp files
+## Undo files made by Vim
+## and other temp files
+*.un~
 *~
 
 # Byte-compiled / optimized / DLL files
