@@ -1,6 +1,15 @@
-# RicoBot
+### RicoBot ###
 
+# imports for the .env to work
+from os import environ
+from dotenv import load_dotenv
+
+# so that we can use the Discord API
 import discord
+
+# loading in the token
+load_dotenv()
+token = environ['TOKEN']
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -21,4 +30,4 @@ async def on_message(message):
     if message.content.startswith('r!'):
         await message.channel.send('henlo!'):
 
-client.run('')
+client.run(token)
