@@ -6,6 +6,15 @@ import discord
 from discord.ext import commands
 
 
+# function to handle syntax erros
+# will be called from various commands or events
+async def syntaxError(ctx):
+    syntaxErrorMsg = 'Um... I\'m not exactly sure what you\'re asking for.\
+ Make sure you don\'t have any extra spaces in your message.\
+ You can type `r! help` for a list of valid commands.'
+    await ctx.channel.send(syntaxErrorMsg)
+
+
 class CommandsCog(commands.Cog, name = 'Commands'):
 
     def __init__(self, bot):
@@ -21,7 +30,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             to change the nicknames of every mentioned user to [nickname].\
             You can include as many people as you want in the same command.\n\
             \nNotes:\n\
-            \t- will not work if the first word in the nickname is\
+            \t- Will not work if the first word in the nickname is\
             enclosed in <angle brackets>.\n\
             \t- RicoBot cannot change the nickname of the server owner. He\
             instead will mention them again and ask them to change their name.')
@@ -106,6 +115,44 @@ class CommandsCog(commands.Cog, name = 'Commands'):
 
         # send the embed
         await ctx.channel.send(embed = emb)
+
+
+    # detect when somebody has tried to call RicoBot but has used an
+    # invalid command
+    @commands.Cog.listener('on_message')
+    # only care if it seems like they were trying to call Rico
+    async def invalidCmd(self, message):
+        # only care if it seems like they were trying to call Rico
+        if message.content.startswith('r!'):
+            # remove the prefix
+            # ultimately trying to isolate the "command" to check that
+            # it is not on the valid list
+            cmd = message.content[2:]
+            # remove the space after the prefix too if it's there
+            # but only one. one is allowed per his usual prefix.
+            # too many spaces will mean syntax error
+            if message.content.startswith(' '):
+                cmd = cmd[1:]
+            # grab just the next word after the prefix,
+            # including leading whitespace
+            endInd = 0
+            # first get past all starting whitespace
+            while endInd < len(cmd)-1 and cmd[endInd].isspace():
+                endInd += 1
+            # now go until the next whitespace
+            while endInd < len(cmd)-1 and not cmd[endInd].isspace():
+                endInd += 1
+            # set cmd to be that first word, including leading whitespace
+            cmd = cmd[:endInd+1]
+            print(cmd)
+            # check that it is not a valid command or command alias
+            for validCmd in self.bot.commands:
+                if cmd == validCmd.name:
+                    return
+                if cmd in validCmd.aliases:
+                    return
+            # send error messgage
+            await syntaxError(message)
 
 
 # necessary to link the cog to the main file
