@@ -46,19 +46,22 @@ async def on_message(message):
 
         # nick: change the nickname of the mentioned people
         # syntax: r! nick @user1 @user2 ... [desired nickname]
-        # NOTE: currently can only grab nickname from a command with
-        # correct syntax
+        # NOTE: only works on correct syntax
+        # still need to implement error messages for incorrect syntax
         if command == 'nick':
             # grab the nickname
             # find where in the message the nickname starts
-            nickIndex = 2
-            while(splitMessage[nickIndex].startswith('<@')):
-                nickIndex +=1
+            nnameIndex = 2
+            while(splitMessage[nnameIndex].startswith('<@')):
+                nnameIndex +=1
             # slice off the nickname
-            nickList = splitMessage[nickIndex:]
+            nnameList = splitMessage[nnameIndex:]
             # make it one string again
-            nick = ' '.join(nickList)
-            print(nick)
+            nname = ' '.join(nnameList)
+
+            # give the nickname to every mentioned user
+            for friend in message.mentions:
+                await friend.edit(nick = nname)
             return
 
 
