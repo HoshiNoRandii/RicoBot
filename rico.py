@@ -28,6 +28,26 @@ async def on_message(message):
 
     # respond to messages starting with 'r!'
     if message.content.startswith('r!'):
-        await message.channel.send('henlo!')
+
+        # split the messgage into individual words
+        splitMessage = message.content.split()
+
+        # if no command, respond with '?'
+        if len(splitMessage) < 2:
+            await message.channel.send('?')
+            return
+
+        # grab the command
+        command = splitMessage[1]
+
+        # respond 'henlo!' to the command 'hi'
+        if command == 'hi':
+            await message.channel.send('henlo!')
+            return
+
+        # respond '?' to anything else
+        else:
+            await message.channel.send('?')
+            return
 
 client.run(token)
