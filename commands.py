@@ -20,8 +20,11 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             help = 'Type `r! nick @user1 @user2 @user3 [nickname]`\
             to change the nicknames of every mentioned user to [nickname].\
             You can include as many people as you want in the same command.\n\
-            *Note: will not work if the first word in the nickname is\
-            enclosed in <angle brackets>.')
+            \nNotes:\n\
+            \t- will not work if the first word in the nickname is\
+            enclosed in <angle brackets>.\n\
+            \t- RicoBot cannot change the nickname of the server owner. He\
+            instead will mention them again and ask them to change their name.')
     async def nick(self, ctx, *args):
         # grab the nickname
         # find where in the message the nickname starts
