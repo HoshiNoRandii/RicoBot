@@ -24,7 +24,7 @@ token = environ['TOKEN']
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(intents = intents, command_prefix = 'r! ')
+bot = commands.Bot(intents = intents, command_prefix = ('r! ','r!'))
 
 
 
