@@ -1,4 +1,12 @@
-### RicoBot ###
+###############################################################################
+#
+# RicoBot
+# by HoshiNoRandii
+#
+# I wrote this bot so that my friends could all change each other's
+# nicknames in our server!
+# 
+###############################################################################
 
 # imports for the .env to work
 from os import environ
@@ -6,74 +14,67 @@ from dotenv import load_dotenv
 
 # so that we can use the Discord API
 import discord
+from discord.ext import commands
 
 # loading in the token
 load_dotenv()
 token = environ['TOKEN']
 
+# making sure to have all necessary permissions
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+bot = commands.Bot(intents = intents, command_prefix = 'r! ')
 
-@client.event
+
+
+@bot.event
 async def on_ready():
     print('Rico is ready!')
 
 
-@client.event
+@bot.event
 async def on_message(message):
     # don't have Rico reply to himself
-    if message.author == client.user:
+    if message.author == bot.user:
         return
+    
+    # so that commands work as well as anything in here
+    await bot.process_commands(message)
+    
+    return
 
 
-    # respond to messages starting with 'r!'
-    if message.content.startswith('r!'):
-        # split the messgage into individual words
-        splitMessage = message.content.split()
+### Commands ###
+
+# nick: change the nickname of the mentioned people
+# syntax: r! nick @user1 @user2 ... [nickname]
+# NOTE: only works on correct syntax
+# still need to implement error messages for incorrect syntax
+@bot.command()
+async def nick(ctx, *args):
+    # grab the nickname
+    # find where in the message the nickname starts
+    # uses the fact that mentions start with '<' and end with '>'
+    # so the first word in the nickname can't be in angle brackets
+    nnameIndex = 0
+    while args[nnameIndex].startswith('<') and args[nnameIndex].endswith('>'):  
+        nnameIndex +=1
+    # slice off the nickname
+    nnameList = args[nnameIndex:]
+    # make it one string again
+    nname = ' '.join(nnameList)
+
+    # give the nickname to every mentioned user
+    for friend in ctx.message.mentions:
+        await friend.edit(nick = nname)
+    return
 
 
-        # no command: send '?'
-        if len(splitMessage) < 2:
-            await message.channel.send('?')
-            return
+# hi: send 'henlo!'
+@bot.command()
+async def hi(ctx):
+    await ctx.channel.send('henlo!')
+    return
 
-
-        # grab the command
-        command = splitMessage[1]
-
-
-        # nick: change the nickname of the mentioned people
-        # syntax: r! nick @user1 @user2 ... [desired nickname]
-        # NOTE: only works on correct syntax
-        # still need to implement error messages for incorrect syntax
-        if command == 'nick':
-            # grab the nickname
-            # find where in the message the nickname starts
-            nnameIndex = 2
-            while(splitMessage[nnameIndex].startswith('<@')):
-                nnameIndex +=1
-            # slice off the nickname
-            nnameList = splitMessage[nnameIndex:]
-            # make it one string again
-            nname = ' '.join(nnameList)
-
-            # give the nickname to every mentioned user
-            for friend in message.mentions:
-                await friend.edit(nick = nname)
-            return
-
-
-        # hi: send 'henlo!'
-        if command == 'hi':
-            await message.channel.send('henlo!')
-            return
-
-
-        # other command: send '?'
-        else:
-            await message.channel.send('?')
-            return
-
-client.run(token)
+bot.run(token)
