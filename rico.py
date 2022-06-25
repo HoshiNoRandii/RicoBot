@@ -28,6 +28,8 @@ intents.message_content = True
 intents.members = True
 
 bot = commands.Bot(intents = intents, command_prefix = ('r! ','r!'))
+# remove default help command so the custom one works
+bot.remove_command('help')
 
 
 # load in the cogs
