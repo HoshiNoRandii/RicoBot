@@ -11,7 +11,8 @@ from discord.ext import commands
 async def syntaxError(ctx):
     syntaxErrorMsg = 'Um... I\'m not exactly sure what you\'re asking for.\
  Make sure you don\'t have any extra spaces in your message.\
- You can type `r! help` for a list of valid commands.'
+ You can type `r! help` for a list of valid commands, or `r! help [command]`\
+ for information about a specific command.'
     await ctx.channel.send(syntaxErrorMsg)
 
 
@@ -30,23 +31,32 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             to change the nicknames of every mentioned user to [nickname].\
             You can include as many people as you want in the same command.\n\
             \nNotes:\n\
-            \t- Will not work if the first word in the nickname is\
-            enclosed in <angle brackets>.\n\
+            \t- Will not work if the first word in the nickname starts with\
+            \'<@\' and ends with \'>\'.\
             \t- RicoBot cannot change the nickname of the server owner. He\
             instead will mention them again and ask them to change their name.')
     async def nick(self, ctx, *args):
+        # check that the first arguments is a user mention 
+        if not (args[0].startswith('<@') and args[0].endswith('>')):
+                await syntaxError(ctx) 
+                return
+
         # grab the nickname
         # find where in the message the nickname starts
-        # uses the fact that mentions start with '<' and end with '>'
-        # so the first word in the nickname can't be in angle brackets
+        # uses the fact that user mentions start with '<@' and end with '>'
+        # so the first word in the nickname can't follow this pattern.
         nnameIndex = 0
-        while args[nnameIndex].startswith('<')\
+        while args[nnameIndex].startswith('<@')\
                 and args[nnameIndex].endswith('>'):  
             nnameIndex +=1
         # slice off the nickname
         nnameList = args[nnameIndex:]
         # make it one string again
         nname = ' '.join(nnameList)
+        # check that it isn't too long
+        if len(nname) > 32:
+            ctx.channel.send('that nickname is too long! (max: 32 characters)')
+            return
 
         # give the nickname to every mentioned user
         for friend in ctx.message.mentions:
@@ -56,7 +66,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             else:
                 await friend.edit(nick = nname)
         # announce that it's been changed
-        await ctx.channe.send('nickname changed!')
+        await ctx.channel.send('nickname changed!')
         return
 
 
@@ -124,6 +134,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
     async def invalidCmd(self, message):
         # only care if it seems like they were trying to call Rico
         if message.content.startswith('r!'):
+            print('here tho')
             # remove the prefix
             # ultimately trying to isolate the "command" to check that
             # it is not on the valid list
@@ -131,7 +142,8 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             # remove the space after the prefix too if it's there
             # but only one. one is allowed per his usual prefix.
             # too many spaces will mean syntax error
-            if message.content.startswith(' '):
+            if cmd.startswith(' '):
+                print('here')
                 cmd = cmd[1:]
             # grab just the next word after the prefix,
             # including leading whitespace
@@ -147,6 +159,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             print(cmd)
             # check that it is not a valid command or command alias
             for validCmd in self.bot.commands:
+                print(validCmd.name)
                 if cmd == validCmd.name:
                     return
                 if cmd in validCmd.aliases:
