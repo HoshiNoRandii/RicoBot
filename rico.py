@@ -41,6 +41,8 @@ async def loadCogs():
 
 @bot.event
 async def on_ready():
+    playing = discord.Game(name = 'r! help')
+    await bot.change_presence(activity = playing)
     print('Rico is ready!')
 
 
