@@ -32,7 +32,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             \nCharacter Limit: 32\n\
             \nNotes:\n\
             \t- Will not work if the first word in the nickname starts with\
-            \'<@\' and ends with \'>\'.\
+            \'<@\' and ends with \'>\'.\n\
             \t- RicoBot cannot change the nickname of the server owner. He\
             instead will mention them again and ask them to change their name.')
     async def nick(self, ctx, *args):
@@ -86,8 +86,6 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             server to [name].\n\
             \nCharacter Limit: 100')
     async def servername(self, ctx, *args):
-        print('command servername entered')
-        print(args)
         if len(args) > 100:
             ctx.channel.send('that name is too long! (max: 100 characters)')
             return
@@ -140,6 +138,12 @@ class CommandsCog(commands.Cog, name = 'Commands'):
                     value = cmd.help,\
                     inline = False)
 
+        # if too many arguments
+        elif len(args) > 1:
+            await ctx.channel.send('That\'s too much! Ask about one\
+command at a time please!')
+            return
+
         # send the embed
         await ctx.channel.send(embed = emb)
         return
@@ -166,10 +170,10 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             # including leading whitespace
             endInd = 0
             # first get past all starting whitespace
-            while endInd < len(cmd)-1 and cmd[endInd].isspace():
+            while endInd < len(cmd) and cmd[endInd].isspace():
                 endInd += 1
             # now go until the next whitespace
-            while endInd < len(cmd)-1 and not cmd[endInd].isspace():
+            while endInd < len(cmd) and not cmd[endInd].isspace():
                 endInd += 1
             # set cmd to be that first word, including leading whitespace
             cmd = cmd[:endInd]
