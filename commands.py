@@ -78,9 +78,6 @@ class CommandsCog(commands.Cog, name = 'Commands'):
         await ctx.channel.send('henlo!')
         return
 
-# servername commented out because it doesn't seem that discord.py
-# allows for changing the server name for now
-'''
     ## servername: set the server name
     # syntax: r! servername [name]
     @commands.command(name = 'servername',\
@@ -89,13 +86,14 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             server to [name].\n\
             \nCharacter Limit: 100')
     async def servername(self, ctx, *args):
+        print('command servername entered')
+        print(args)
         if len(args) > 100:
             ctx.channel.send('that name is too long! (max: 100 characters)')
             return
-        await ctx.guild.set_name(args)
+        await ctx.guild.edit(name = ' '.join(args))
         await ctx.channel.send('server name changed!')
         return
-'''      
 
     ## help: a custom help command
     @commands.command(name = 'help',\
