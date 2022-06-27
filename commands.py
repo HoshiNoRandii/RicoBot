@@ -14,6 +14,7 @@ async def syntaxError(ctx):
  You can type `r! help` for a list of valid commands, or `r! help [command]`\
  for information about a specific command.'
     await ctx.channel.send(syntaxErrorMsg)
+    return
 
 
 class CommandsCog(commands.Cog, name = 'Commands'):
@@ -28,6 +29,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             help = 'Type `r! nick @user1 @user2 @user3 [nickname]`\
             to change the nicknames of every mentioned user to [nickname].\
             You can include as many people as you want in the same command.\n\
+            \nCharacter Limit: 32\n\
             \nNotes:\n\
             \t- Will not work if the first word in the nickname starts with\
             \'<@\' and ends with \'>\'.\
@@ -53,7 +55,8 @@ class CommandsCog(commands.Cog, name = 'Commands'):
         nname = ' '.join(nnameList)
         # check that it isn't too long
         if len(nname) > 32:
-            ctx.channel.send('that nickname is too long! (max: 32 characters)')
+            await ctx.channel.send(\
+                    'that nickname is too long! (max: 32 characters)')
             return
 
         # give the nickname to every mentioned user
@@ -75,6 +78,24 @@ class CommandsCog(commands.Cog, name = 'Commands'):
         await ctx.channel.send('henlo!')
         return
 
+# servername commented out because it doesn't seem that discord.py
+# allows for changing the server name for now
+'''
+    ## servername: set the server name
+    # syntax: r! servername [name]
+    @commands.command(name = 'servername',\
+            brief = 'set the server name',\
+            help = 'Type `r! servername [name]` to change the name of the\
+            server to [name].\n\
+            \nCharacter Limit: 100')
+    async def servername(self, ctx, *args):
+        if len(args) > 100:
+            ctx.channel.send('that name is too long! (max: 100 characters)')
+            return
+        await ctx.guild.set_name(args)
+        await ctx.channel.send('server name changed!')
+        return
+'''      
 
     ## help: a custom help command
     @commands.command(name = 'help',\
@@ -123,6 +144,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
 
         # send the embed
         await ctx.channel.send(embed = emb)
+        return
 
 
     ## detect when somebody has tried to call RicoBot but has used an
@@ -152,7 +174,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             while endInd < len(cmd)-1 and not cmd[endInd].isspace():
                 endInd += 1
             # set cmd to be that first word, including leading whitespace
-            cmd = cmd[:endInd+1]
+            cmd = cmd[:endInd]
             # check that it is not a valid command or command alias
             for validCmd in self.bot.commands:
                 if cmd == validCmd.name:
@@ -161,8 +183,10 @@ class CommandsCog(commands.Cog, name = 'Commands'):
                     return
             # send error messgage
             await syntaxError(message)
+        return
 
 
 # necessary to link the cog to the main file
 async def setup(bot):
     await bot.add_cog(CommandsCog(bot))
+    return
