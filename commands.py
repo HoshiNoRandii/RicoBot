@@ -17,6 +17,14 @@ async def syntaxError(ctx):
     return
 
 
+## isUserMent(word): str -> bool
+# returns True if word is a user mention
+# uses the fact that user mentions begin with <@ and end with >
+# assumes that word does not contain any whitespace
+def isUserMent(word):
+    return word.startswith('<@') and word.endswith('>')
+
+
 class CommandsCog(commands.Cog, name = 'Commands'):
 
     def __init__(self, bot):
@@ -32,22 +40,21 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             \nCharacter Limit: 32\n\
             \nNotes:\n\
             \t- Will not work if the first word in the nickname starts with\
-            \'<@\' and ends with \'>\'.\n\
+            `<@` and ends with `>`.\n\
             \t- RicoBot cannot change the nickname of the server owner. He\
             instead will mention them again and ask them to change their name.')
     async def nick(self, ctx, *args):
-        # check that the first arguments is a user mention 
-        if not (args[0].startswith('<@') and args[0].endswith('>')):
-                await syntaxError(ctx) 
-                return
+        # check that the first argument is a user mention 
+        if not isUserMent(args[0]): 
+             await syntaxError(ctx) 
+             return
 
         # grab the nickname
         # find where in the message the nickname starts
         # uses the fact that user mentions start with '<@' and end with '>'
         # so the first word in the nickname can't follow this pattern.
         nnameIndex = 0
-        while args[nnameIndex].startswith('<@')\
-                and args[nnameIndex].endswith('>'):  
+        while isUserMent(args[nnameIndex]): 
             nnameIndex +=1
         # slice off the nickname
         nnameList = args[nnameIndex:]
@@ -130,6 +137,10 @@ class CommandsCog(commands.Cog, name = 'Commands'):
         elif len(args) == 1:
             # get the command
             cmd = self.bot.get_command(args[0])
+            # check if it's a valid command
+            if cmd == None:
+                await ctx.channel.send('That\'s not something I can do. \
+Type `r! help` for a list of valid commands.')
             # build the embed
             emb = discord.Embed(\
                     title = 'RicoBot Help',\
@@ -140,7 +151,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
 
         # if too many arguments
         elif len(args) > 1:
-            await ctx.channel.send('That\'s too much! Ask about one\
+            await ctx.channel.send('That\'s too much! Ask about one \
 command at a time please!')
             return
 
