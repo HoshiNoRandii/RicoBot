@@ -93,7 +93,7 @@ class CommandsCog(commands.Cog, name = 'Commands'):
             server to [name].\n\
             \nCharacter Limit: 100')
     async def servername(self, ctx, *args):
-        if len(args) > 100:
+        if len(' '.join(args)) > 100:
             ctx.channel.send('that name is too long! (max: 100 characters)')
             return
         await ctx.guild.edit(name = ' '.join(args))
