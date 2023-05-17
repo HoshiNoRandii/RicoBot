@@ -23,7 +23,7 @@ BETA = False
 
 # loading in the token
 load_dotenv()
-if BETA = True:
+if BETA == True:
     token = environ['BETA_TOKEN']
 else:
     token = environ['TOKEN']
