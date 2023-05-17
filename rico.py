@@ -18,9 +18,15 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+# set to True for [BETA] RicoBot
+BETA = False
+
 # loading in the token
 load_dotenv()
-token = environ['TOKEN']
+if BETA = True:
+    token = environ['BETA_TOKEN']
+else:
+    token = environ['TOKEN']
 
 # making sure to have all necessary permissions
 intents = discord.Intents.default()
