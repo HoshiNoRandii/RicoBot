@@ -19,7 +19,7 @@ import discord
 from discord.ext import commands
 
 # set to True for [BETA] RicoBot
-BETA = False
+BETA = True
 
 # loading in the token
 load_dotenv()
