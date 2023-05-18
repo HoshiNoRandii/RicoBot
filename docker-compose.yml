@@ -1,0 +1,17 @@
+services:
+  discord-bot:
+    image: bot:latest
+    restart: always
+    ports:
+      - 3000:3000
+
+  postgres:
+    image: postgres:15
+    restart: always
+    volumes:
+      - ./db_data/:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - 5432:5432
+
