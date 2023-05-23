@@ -2,6 +2,7 @@
 ### the postgres database
 
 import psycopg2
+from psycopg2 import pool
 from config import config
 
 # connectPool: create the connection pool
@@ -11,18 +12,19 @@ def connectPool():
         params = config()
 
         # create the pool
-        pool = psycopg2.pool.AbstractConnectionPool(1, 20, **params)
+        connPool = psycopg2.pool.AbstractConnectionPool(1, 20, **params)
 
-        if pool:
+        if connPool:
             print("Connection pool created successfully")
 
-    except (Exception, psycop2.DatabaseError) as error:
+    except (Exception, psycopg2.DatabaseError) as error:
         print("Error while creating postgres connection pool", error)
+        return None
 
-    return pool
+    return connPool
 
-# closePool(pool): close the connection pool pool
-def closePool(pool):
-    pool.closeall
+# closePool(connPool): close the connection pool connPool
+def closePool(connPool):
+    connPool._closeall()
     print("Connection pool is closed")
     return

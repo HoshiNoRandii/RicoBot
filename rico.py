@@ -43,12 +43,13 @@ bot.remove_command('help')
 
 # create the connection pool for the postgres server
 # and close it (for now)
-pool = connectPool()
-closePool(pool)
+connPool = connectPool()
+if connPool:
+    closePool(connPool)
 
 # load in the cogs
 async def loadCogs():
-    cogsList = ['commands, dev_commands']
+    cogsList = ['commands', 'dev_commands']
     for cog in cogsList:
         await bot.load_extension(cog)
 

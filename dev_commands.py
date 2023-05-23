@@ -17,5 +17,9 @@ class CommandsCog(commands.Cog, name = 'Dev Commands'):
     async def userList(self,ctx):
         return
 
+# necessary to link the cog to the main file
+async def setup(bot):
+    await bot.add_cog(CommandsCog(bot))
+    return
 
 
