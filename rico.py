@@ -18,6 +18,10 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+# so that we can connect to the postgres server
+from connect import *
+
+
 # set to True for [BETA] RicoBot
 BETA = True
 
@@ -37,10 +41,14 @@ bot = commands.Bot(intents = intents, command_prefix = ('r! ','r!','R! ','R!'))
 # remove default help command so the custom one works
 bot.remove_command('help')
 
+# create the connection pool for the postgres server
+# and close it (for now)
+pool = connectPool()
+closePool(pool)
 
 # load in the cogs
 async def loadCogs():
-    cogsList = ['commands']
+    cogsList = ['commands, dev_commands']
     for cog in cogsList:
         await bot.load_extension(cog)
 
