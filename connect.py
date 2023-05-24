@@ -5,6 +5,14 @@ import psycopg2
 from psycopg2 import pool
 from config import config
 
+# init: create the global connPool
+# and close it (for now)
+def init():
+    global connPool
+    connPool = connectPool()
+    if connPool:
+        closePool(connPool)
+
 # connectPool: create the connection pool
 def connectPool():
     try:

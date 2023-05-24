@@ -19,8 +19,7 @@ import discord
 from discord.ext import commands
 
 # so that we can connect to the postgres server
-from connect import *
-
+import connect
 
 # set to True for [BETA] RicoBot
 BETA = True
@@ -43,13 +42,11 @@ bot.remove_command('help')
 
 # create the connection pool for the postgres server
 # and close it (for now)
-connPool = connectPool()
-if connPool:
-    closePool(connPool)
+connect.init()
 
 # load in the cogs
 async def loadCogs():
-    cogsList = ['commands', 'dev_commands']
+    cogsList = ['commands', 'dev_tools']
     for cog in cogsList:
         await bot.load_extension(cog)
 

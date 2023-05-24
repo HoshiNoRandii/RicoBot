@@ -1,11 +1,11 @@
-### Dev Commands ###
+### Dev Tools ###
 # a cog containing commands for developer use
 
 # so that we can use the Discord API
 import discord
 from discord.ext import commands
 
-class CommandsCog(commands.Cog, name = 'Dev Commands'):
+class CommandsCog(commands.Cog, name = 'Dev Tools'):
 
     def __init__(self, bot):
         self.bot = bot
