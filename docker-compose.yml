@@ -2,6 +2,8 @@ services:
   discord-bot:
     image: bot:latest
     restart: always
+    ports:
+      - 3000:3000
     networks:
       customnetwork:
         ipv4_address: 172.20.0.2
@@ -13,6 +15,8 @@ services:
       - ./db_data/:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - 5432:5432
     networks:
       customnetwork:
         ipv4_address: 172.20.0.3

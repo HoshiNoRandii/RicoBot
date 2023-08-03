@@ -41,6 +41,7 @@ bot = commands.Bot(intents = intents, command_prefix = ('r! ','r!','R! ','R!'))
 bot.remove_command('help')
 
 # create the connection pool for the postgres server
+# and close it (for now)
 connect.init()
 
 # load in the cogs
