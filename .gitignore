@@ -1,8 +1,10 @@
 ### lightly modified from GitHub's .gitignore templates ###
 ## my edits will have a ## comment
 
-## database info
+## database and docker compose info
 database.ini
+docker-compose.yml
+.dockerignore
 
 ## Undo files made by Vim
 ## and other temp files
