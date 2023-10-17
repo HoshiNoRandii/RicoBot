@@ -1,9 +1,12 @@
-version: 3
+version: "3"
 
 services:
   discord-bot:
     image: bot:latest
     restart: always
+    depends_on:
+      postgres:
+        condition: service_started
     networks:
       customnetwork:
         ipv4_address: 172.20.0.2
