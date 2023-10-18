@@ -7,8 +7,6 @@ from discord.ext import commands
 
 # so that we can use the connection pool to connect
 # to the postgres server
-import psycopg2
-from psycopg2 import pool
 import connect
 
 
@@ -24,63 +22,39 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         brief="create user_list table",
         help="create user_list table",
     )
-    async def createUserList(self, ctx):
-        print("Trying to create user list...")
-        psConn = None
-        try:
-            # get a connection to postgres from the connection pool
-            psConn = connect.connPool.getconn()
+    @connect.db_connector
+    def createUserList(self, ctx, cursor):
+        # create table
+        serverID = ctx.guild.id
+        tableName = f"user_list_{serverID}"
+        createTable = f"""
+        CREATE TABLE IF NOT EXISTS {tableName} (
+            user_id BIGINT PRIMARY KEY,
+            username TEXT,
+            name TEXT,
+            pronouns TEXT,
+            nickname TEXT
+        )
+        """
+        cursor.execute(createTable)
+        print("user_list table exists")
 
-            if psConn:
-                print("Successfully retrieved postgres connection from connection pool")
-                # open cursor
-                psCursor = psConn.cursor()
+        # populate table
+        for member in ctx.guild.members:
+            mUser_id = str(member.id)
+            mUsername = member.name
+            mNickname = member.nick
+            command = f"""
+            INSERT INTO {tableName} (user_id, username, nickname)
+            VALUES ({mUser_id}, '{mUsername}', '{mNickname}')
+            ON CONFLICT (user_id)
+            DO
+                UPDATE SET username = '{mUsername}',
+                           nickname = '{mNickname}'
+            """
+            cursor.execute(command)
+        print("user_list table populated")
 
-                # create table
-                serverID = ctx.guild.id
-                tableName = f"user_list_{serverID}"
-                createTable = f"""
-                CREATE TABLE IF NOT EXISTS {tableName} (
-                    user_id BIGINT PRIMARY KEY,
-                    username TEXT,
-                    name TEXT,
-                    pronouns TEXT,
-                    nickname TEXT
-                )
-                """
-                psCursor.execute(createTable)
-                print("user_list table exists")
-
-                # populate table
-                for member in ctx.guild.members:
-                    mUser_id = str(member.id)
-                    mUsername = member.name
-                    mNickname = member.nick
-                    command = f"""
-                    INSERT INTO {tableName} (user_id, username, nickname)
-                    VALUES ({mUser_id}, '{mUsername}', '{mNickname}')
-                    ON CONFLICT (user_id)
-                    DO
-                        UPDATE SET username = '{mUsername}',
-                                   nickname = '{mNickname}'
-                    """
-                    psCursor.execute(command)
-                print("user_list table populated")
-
-                # close cursor
-                psCursor.close()
-
-                # commit changes
-                psConn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-
-        finally:
-            if psConn is not None:
-                # put away the connection
-                connect.connPool.putconn(psConn)
-                print("Successfully put away the postgres connection")
         return
 
 
