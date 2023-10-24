@@ -25,7 +25,7 @@ def isUserMent(word):
     return word.startswith("<@") and word.endswith(">")
 
 
-class CommandsCog(commands.Cog, name="Commands"):
+class CommandsCog(commands.Cog, name="Other Commands"):
     def __init__(self, bot):
         self.bot = bot
 
