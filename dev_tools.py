@@ -7,7 +7,7 @@ from discord.ext import commands
 
 # so that we can use the connection pool to connect
 # to the postgres server
-import connect
+from connect import db_connector
 
 
 class CommandsCog(commands.Cog, name="Dev Tools"):
@@ -22,7 +22,7 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         brief="create user_list table",
         help="create user_list table",
     )
-    @connect.db_connector
+    @db_connector
     def createUserList(self, ctx, cursor):
         # create table
         serverID = ctx.guild.id
