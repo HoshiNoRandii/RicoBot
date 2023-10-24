@@ -46,7 +46,7 @@ connect.init()
 
 # load in the cogs
 async def loadCogs():
-    cogsList = ["other_cmds", "dev_tools"]
+    cogsList = ["names", "other_cmds", "dev_tools"]
     for cog in cogsList:
         await bot.load_extension(cog)
         print(f"{cog} cog loaded")
