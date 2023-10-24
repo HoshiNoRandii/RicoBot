@@ -9,10 +9,9 @@ from discord.ext import commands
 ## function to handle syntax erros
 # will be called from various commands or events
 async def syntaxError(ctx):
-    syntaxErrorMsg = "Um... I'm not exactly sure what you're asking for.\
- Make sure you don't have any extra spaces in your message.\
- You can type `r! help` for a list of valid commands, or `r! help [command]`\
- for information about a specific command."
+    syntaxErrorMsg = """Um... I'm not exactly sure what you're asking for.
+Make sure you don't have any extra spaces in your message.
+You can type `r! help` for a list of valid commands, or `r! help [command]` for information about a specific command."""
     await ctx.channel.send(syntaxErrorMsg)
     return
 
@@ -41,12 +40,12 @@ class CommandsCog(commands.Cog, name="Other Commands"):
     # syntax: r! servername [name]
     @commands.command(
         name="servername",
+        aliases=["Servername", "serverName", "ServerName"],
         brief="set the server name",
-        help="Type `r! servername [name]` to change the name of the\
-            server to [name].\n\
-            \nCharacter Limit: 100",
+        help="""Type `r! servername [name]` to change the name of the server to [name].\n
+Character Limit: 100""",
     )
-    async def servername(self, ctx, *args):
+    async def serverName(self, ctx, *args):
         if len(" ".join(args)) > 100:
             ctx.channel.send("that name is too long! (max: 100 characters)")
             return
@@ -68,9 +67,7 @@ class CommandsCog(commands.Cog, name="Other Commands"):
             # start building embed
             emb = discord.Embed(
                 title="RicoBot Help",
-                description="Here's a list of all of RicoBot's\
-                    commands. For more information on a specific command,\
-                    type `r! help [command name]`.",
+                description="Here's a list of all of RicoBot's commands. For more information on a specific command, type `r! help [command name]`.",
                 color=discord.Color.dark_gold(),
             )
             # generator to not include dev_tools cog
@@ -100,8 +97,7 @@ class CommandsCog(commands.Cog, name="Other Commands"):
             # check if it's a valid command
             if cmd == None:
                 await ctx.channel.send(
-                    "That's not something I can do. \
-Type `r! help` for a list of valid commands."
+                    "That's not something I can do. Type `r! help` for a list of valid commands."
                 )
             # build the embed
             emb = discord.Embed(title="RicoBot Help", color=discord.Color.dark_gold())
@@ -110,8 +106,7 @@ Type `r! help` for a list of valid commands."
         # if too many arguments
         elif len(args) > 1:
             await ctx.channel.send(
-                "That's too much! Ask about one \
-command at a time please!"
+                "That's too much! Ask about one command at a time please!"
             )
             return
 
