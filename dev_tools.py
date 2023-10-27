@@ -7,7 +7,8 @@ from discord.ext import commands
 
 # so that we can use the connection pool to connect
 # to the postgres server
-from connect import db_connector
+# creates an async function
+from connect import db_connector_no_args
 
 
 class CommandsCog(commands.Cog, name="Dev Tools"):
@@ -22,8 +23,8 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         brief="create user_list table",
         help="create user_list table",
     )
-    @db_connector
-    def createUserList(self, ctx, cursor):
+    @db_connector_no_args
+    async def createUserList(self, ctx, *, cursor):
         # create table
         serverID = ctx.guild.id
         tableName = f"user_list_{serverID}"
@@ -41,12 +42,12 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
 
         # populate table
         for member in ctx.guild.members:
-            mUser_id = str(member.id)
+            mUserID = member.id
             mUsername = member.name
             mNickname = member.nick
             command = f"""
             INSERT INTO {tableName} (user_id, username, nickname)
-            VALUES ({mUser_id}, '{mUsername}', '{mNickname}')
+            VALUES ({mUserID}, '{mUsername}', '{mNickname}')
             ON CONFLICT (user_id)
             DO
                 UPDATE SET username = '{mUsername}',

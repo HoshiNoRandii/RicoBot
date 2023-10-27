@@ -16,7 +16,8 @@ class CommandsCog(commands.Cog, name="Names"):
     def __init__(self, bot):
         self.bot = bot
 
-    ## nick: change the nickname of the mentioned people
+        ## nick: change the nickname of the mentioned people
+
     # syntax: r! nick @user1 @user2 ... [nickname]
     @commands.command(
         name="nick",
@@ -29,8 +30,9 @@ Notes:
 - RicoBot cannot change the nickname of the server owner. He instead will mention them again and ask them to change their name.""",
     )
     async def nick(self, ctx, *args):
-        # check that the first argument is a user mention
-        if not isUserMent(args[0]):
+        # check that there are at least 2 arguments
+        # and that the first argument is a user mention
+        if (len(args) < 2) or (not isUserMent(args[0])):
             await syntaxError(ctx)
             return
 
