@@ -40,11 +40,12 @@ def closePool(connPool):
     return
 
 
-# decorator function for all commands that will access the
-# postgres databas
-# any function wrapped with db_connector must have
-# cursor as an argument
-def db_connector(func):
+# decorator function for commands that will access the
+# postgres database and take no arguments
+# any function wrapped with db_connector_no_args must have
+# cursor as a keyword only argument
+# and also must be an async function
+def db_connector_no_args(func):
     # wrapper function
     async def inner(*args, **kwargs):
         print(
@@ -61,12 +62,65 @@ def db_connector(func):
                 # open cursor
                 psCursor = psConn.cursor()
 
+                print(f"args: {args}")
+                print(f"kwargs: {kwargs}")
                 # add this cursor to the kwargs
-                if "cursor" in inspect.getfullargspec(func).args:
+                if "cursor" in inspect.getfullargspec(func).kwonlyargs:
+                    kwargs["cursor"] = psCursor
+                print(f"kwargs now: {kwargs}")
+
+                # execute the function with the cursor
+                await func(*args, **kwargs)
+
+                # close cursor
+                psCursor.close()
+
+                # commit changes
+                psConn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+        finally:
+            if psConn is not None:
+                # put away the connection
+                connPool.putconn(psConn)
+                print("Successfully put away the postgres connection")
+
+        return
+
+    return inner
+
+
+# decorator function for commands that will access the
+# postgres database and take arguments
+# any function wrapped with db_connector_with_args must have
+# (self, ctx) as the first two arguments and
+# cursor as a keyword only argument
+# and also must be an async function
+def db_connector_with_args(func):
+    # wrapper function
+    async def inner(self, ctx, *args, **kwargs):
+        print(
+            f"Attempting to connect to the postgres database to execute {func.__name__}"
+        )
+        psConn = None
+        try:
+            # get a connection to the postgres db from the
+            # connection pool
+            psConn = connPool.getconn()
+
+            if psConn:
+                print("Successfully retrieved postgres connection from connection pool")
+                # open cursor
+                psCursor = psConn.cursor()
+
+                # add this cursor to the kwargs
+                if "cursor" in inspect.getfullargspec(func).kwonlyargs:
                     kwargs["cursor"] = psCursor
 
                 # execute the function with the cursor
-                func(*args, **kwargs)
+                await func(self, ctx, *args, **kwargs)
 
                 # close cursor
                 psCursor.close()
