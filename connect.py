@@ -67,12 +67,9 @@ def db_connector_no_args(func):
                 # open cursor
                 psCursor = psConn.cursor()
 
-                print(f"args: {args}")
-                print(f"kwargs: {kwargs}")
                 # add this cursor to the kwargs
                 if "cursor" in inspect.getfullargspec(func).kwonlyargs:
                     kwargs["cursor"] = psCursor
-                print(f"kwargs now: {kwargs}")
 
                 # execute the function with the cursor
                 await func(*args, **kwargs)
