@@ -175,8 +175,6 @@ def isNameRole(server, role, cursor, oldName=None):
     nameList = listUntuple(cursor.fetchall())
     if oldName:
         nameList.append(oldName)
-    print(f"isNameRole {role.name}: {role.name in nameList}")
-    print(f"nameList: {nameList}")
     return role.name in nameList
 
 
