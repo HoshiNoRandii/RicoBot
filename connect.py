@@ -11,7 +11,12 @@ from config import config
 # init: create the global connPool
 def init():
     global connPool
+    print("Attempting to create postgres connection pool...")
     connPool = connectPool()
+    while connPool == None:
+        print("Retrying...")
+        connPool = connectPool()
+    return
 
 
 # connectPool: create the connection pool
