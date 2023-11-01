@@ -45,7 +45,7 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
             mUserID = member.id
             mUsername = member.name
             mNickname = member.nick
-            command = f"""
+            insertInto = f"""
             INSERT INTO {tableName} (user_id, username, nickname)
             VALUES ({mUserID}, '{mUsername}', '{mNickname}')
             ON CONFLICT (user_id)
@@ -53,7 +53,7 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
                 UPDATE SET username = '{mUsername}',
                            nickname = '{mNickname}'
             """
-            cursor.execute(command)
+            cursor.execute(insertInto)
         print("user_list table populated")
 
         return

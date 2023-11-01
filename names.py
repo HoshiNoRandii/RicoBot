@@ -28,6 +28,7 @@ Notes:
 - Will not work if the first word in the nickname starts with `<@` and ends with `>`.
 - RicoBot cannot change the nickname of the server owner. He instead will mention them again and ask them to change their name.""",
     )
+    # TODO: have nick update the db
     async def nick(self, ctx, *args):
         # check that there are at least 2 arguments
         # and that the first argument is a user mention
@@ -77,8 +78,8 @@ Character Limit: 32""",
         if len(newName) > 32:
             await ctx.channel.send("that name is too long! (max: 32 characters)")
             return
-        oldName = updateNameDB(ctx.guild, ctx.author, newName, cursor)[0]
-        await updateNameRole(ctx.guild, ctx.author, cursor, oldName)
+        await updateNameRole(ctx.guild, ctx.author, cursor, newName)
+        dbUpdateName(ctx.guild, ctx.author, cursor, newName)
         await ctx.channel.send("name set!")
         return
 
@@ -92,8 +93,6 @@ Character Limit: 32""",
     )
     @db_connector_no_args
     async def getName(self, ctx, *, cursor):
-        serverID = ctx.guild.id
-        tableName = f"user_list_{serverID}"
         msg = ""
         for friend in ctx.message.mentions:
             # insert newline character if this is not the first friend
@@ -101,21 +100,17 @@ Character Limit: 32""",
                 msg = msg + "\n"
 
             # get name from database
-            userID = friend.id
-            getName = f"""
-            SELECT name
-            FROM {tableName}
-            WHERE user_id = {userID}
-            """
-            cursor.execute(getName)
-            name = cursor.fetchall()[0][0]
+            name = dbGetName(ctx.guild, friend, cursor)
 
             # update msg
             msg = msg + f"{friend.name}"
             if friend.nick:
                 msg = msg + f" (aka {friend.nick})"
             msg = msg + f"'s name is {name}."
-        await ctx.channel.send(msg)
+
+        if msg != "":  # guard against if no users were mentioned
+            await ctx.channel.send(msg)
+
         return
 
     ## TODO:
@@ -128,25 +123,53 @@ Character Limit: 32""",
 ## helper functions ##
 
 
-# updates a user's name in the user_list table
-# server argument is an instance of discord.Guild
-# member argument is an instance of discord.Member
-# returns (oldName, newName)
-def updateNameDB(server, member, newName, cursor):
+# gets a user's name from the database
+# server arg is an instance of discord.Guild
+# member arg is an instance of discord.Member
+def dbGetName(server, member, cursor):
     serverID = server.id
     userID = member.id
     tableName = f"user_list_{serverID}"
 
-    # get old name
-    getOldName = f"""
+    selectName = f"""
     SELECT name
     FROM {tableName}
     WHERE user_id = {userID}
     """
-    cursor.execute(getOldName)
-    oldName = cursor.fetchall()[0][0]
+    cursor.execute(selectName)
+    # cursor.fetchall() returns a list of tuples, where each tuple
+    # is a returned row
+    # this cursor.fetchall() should return [(name,)]
+    name = cursor.fetchall()[0][0]
 
-    # set new name
+    return name
+
+
+def dbGetNameList(server, cursor):
+    # grab list of names from db
+    serverID = server.id
+    tableName = f"user_list_{serverID}"
+    selectName = f"""
+    SELECT name
+    FROM {tableName}
+    """
+    cursor.execute(selectName)
+    # cursor.fetchall() returns a list of tuples, where each tuple
+    # is a returned row
+    # this cursor.fetchall() should return
+    # [(name1,),(name2,),(name3,),...]
+    nameList = listUntuple(cursor.fetchall())
+
+    return nameList
+
+
+# updates a user's name in the user_list table
+# server argument is an instance of discord.Guild
+# member argument is an instance of discord.Member
+def dbUpdateName(server, member, cursor, newName):
+    serverID = server.id
+    tableName = f"user_list_{serverID}"
+    userID = member.id
     updateName = f"""
     UPDATE {tableName}
     SET name = '{newName}'
@@ -155,32 +178,22 @@ def updateNameDB(server, member, newName, cursor):
     cursor.execute(updateName)
     print(f"user {member.name}'s name set to {newName} in user_list table")
 
-    return (oldName, newName)
+    return
 
 
 # updates a user's name role
 # server argument is an instance of discord.Guild
 # member argument is an instance of discord.Member
-# oldName argument is optional
-async def updateNameRole(server, member, cursor, oldName=None):
-    # grab name from database
-    serverID = server.id
-    tableName = f"user_list_{serverID}"
-    userID = member.id
-    getName = f"""
-    SELECT name
-    FROM {tableName}
-    WHERE user_id = {userID}
-    """
-    cursor.execute(getName)
-    # cursor.fetchall() returns a list of tuples, where each tuple
-    # is a returned row
-    # this cursor.fetchall() should return [(name,)]
-    newName = cursor.fetchall()[0][0]
+# if no newName is provided, name will update to the one
+# stored in the database
+async def updateNameRole(server, member, cursor, newName=None):
+    if newName == None:
+        # grab name from database if none provided
+        newName = dbGetName(server, member, cursor)
 
     # check for existing name role
     for role in member.roles:
-        if isNameRole(server, role, cursor, oldName):
+        if isNameRole(role, server, cursor):
             await role.edit(name=f"{newName}")
             return
 
@@ -192,24 +205,8 @@ async def updateNameRole(server, member, cursor, oldName=None):
 
 # isNameRole checks if a role is a "name role",
 # i.e. its name matches a name in the user_list table
-# or the user's previous name, if the optional
-# oldName argument is provided
-def isNameRole(server, role, cursor, oldName=None):
-    # grab list of names from db
-    serverID = server.id
-    tableName = f"user_list_{serverID}"
-    getNames = f"""
-    SELECT name
-    FROM {tableName}
-    """
-    cursor.execute(getNames)
-    # cursor.fetchall() returns a list of tuples, where each tuple
-    # is a returned row
-    # this cursor.fetchall() should return
-    # [(name1,),(name2,),(name3,),...]
-    nameList = listUntuple(cursor.fetchall())
-    if oldName:
-        nameList.append(oldName)
+def isNameRole(role, server, cursor):
+    nameList = dbGetNameList(server, cursor)
     return role.name in nameList
 
 
