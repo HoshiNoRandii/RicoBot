@@ -9,15 +9,14 @@ from other_cmds import syntaxError, isUserMent
 
 # so that we can use the connection pool to connect
 # to the postgres server
-from connect import db_connector_with_args
+from connect import db_connector_no_args, db_connector_with_args
 
 
 class CommandsCog(commands.Cog, name="Names"):
     def __init__(self, bot):
         self.bot = bot
 
-        ## nick: change the nickname of the mentioned people
-
+    ## nick: change the nickname of the mentioned people
     # syntax: r! nick @user1 @user2 ... [nickname]
     @commands.command(
         name="nick",
@@ -81,6 +80,42 @@ Character Limit: 32""",
         oldName = updateNameDB(ctx.guild, ctx.author, newName, cursor)[0]
         await updateNameRole(ctx.guild, ctx.author, cursor, oldName)
         await ctx.channel.send("name set!")
+        return
+
+    ## getname: get the name of a server member
+    # syntax: r! getname [name]
+    @commands.command(
+        name="getname",
+        aliases=["getName", "Getname", "GetName"],
+        brief="view friends' names",
+        help="""Type `r! getname @user1 @user2 @user3` and I'll tell you the names of the users you mentioned. You can mention as many people as you like.""",
+    )
+    @db_connector_no_args
+    async def getName(self, ctx, *, cursor):
+        serverID = ctx.guild.id
+        tableName = f"user_list_{serverID}"
+        msg = ""
+        for friend in ctx.message.mentions:
+            # insert newline character if this is not the first friend
+            if msg != "":
+                msg = msg + "\n"
+
+            # get name from database
+            userID = friend.id
+            getName = f"""
+            SELECT name
+            FROM {tableName}
+            WHERE user_id = {userID}
+            """
+            cursor.execute(getName)
+            name = cursor.fetchall()[0][0]
+
+            # update msg
+            msg = msg + f"{friend.name}"
+            if friend.nick:
+                msg = msg + f" (aka {friend.nick})"
+            msg = msg + f"'s name is {name}."
+        await ctx.channel.send(msg)
         return
 
     ## TODO:
