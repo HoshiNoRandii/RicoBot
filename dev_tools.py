@@ -24,37 +24,41 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         help="create user_list table",
     )
     @db_connector_no_args
-    async def createUserList(self, ctx, *, cursor):
-        # create table
-        serverID = ctx.guild.id
-        tableName = f"user_list_{serverID}"
-        createTable = f"""
-        CREATE TABLE IF NOT EXISTS {tableName} (
-            user_id BIGINT PRIMARY KEY,
-            username TEXT,
-            name TEXT,
-            pronouns TEXT,
-            nickname TEXT
-        )
-        """
-        cursor.execute(createTable)
-        print("user_list table exists")
-
-        # populate table
-        for member in ctx.guild.members:
-            mUserID = member.id
-            mUsername = member.name
-            mNickname = member.nick
-            insertInto = f"""
-            INSERT INTO {tableName} (user_id, username, nickname)
-            VALUES ({mUserID}, '{mUsername}', '{mNickname}')
-            ON CONFLICT (user_id)
-            DO
-                UPDATE SET username = '{mUsername}',
-                           nickname = '{mNickname}'
+    async def createUserList(self, ctx, *, cursor=None):
+        try:
+            # create table
+            serverID = ctx.guild.id
+            tableName = f"user_list_{serverID}"
+            createTable = f"""
+            CREATE TABLE IF NOT EXISTS {tableName} (
+                user_id BIGINT PRIMARY KEY,
+                username TEXT,
+                name TEXT,
+                pronouns TEXT,
+                nickname TEXT
+            )
             """
-            cursor.execute(insertInto)
-        print("user_list table populated")
+            cursor.execute(createTable)
+            print("user_list table exists")
+
+            # populate table
+            for member in ctx.guild.members:
+                mUserID = member.id
+                mUsername = member.name
+                mNickname = member.nick
+                insertInto = f"""
+                INSERT INTO {tableName} (user_id, username, nickname)
+                VALUES ({mUserID}, '{mUsername}', '{mNickname}')
+                ON CONFLICT (user_id)
+                DO
+                    UPDATE SET username = '{mUsername}',
+                               nickname = '{mNickname}'
+                """
+                cursor.execute(insertInto)
+            print("user_list table populated")
+
+        except Exception as error:
+            print(error)
 
         return
 

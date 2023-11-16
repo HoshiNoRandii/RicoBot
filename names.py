@@ -72,15 +72,20 @@ Notes:
 Character Limit: 32""",
     )
     @db_connector_with_args
-    async def setName(self, ctx, *args, cursor):
-        newName = " ".join(args)
-        # check that name isn't too long
-        if len(newName) > 32:
-            await ctx.channel.send("that name is too long! (max: 32 characters)")
-            return
-        await updateNameRole(ctx.guild, ctx.author, cursor, newName)
-        dbUpdateName(ctx.guild, ctx.author, cursor, newName)
-        await ctx.channel.send("name set!")
+    async def setName(self, ctx, *args, cursor=None):
+        try:
+            newName = " ".join(args)
+            # check that name isn't too long
+            if len(newName) > 32:
+                await ctx.channel.send("that name is too long! (max: 32 characters)")
+                return
+            await updateNameRole(ctx.guild, ctx.author, cursor, newName)
+            dbUpdateName(ctx.guild, ctx.author, cursor, newName)
+            await ctx.channel.send("name set!")
+
+        except Exception as error:
+            print(error)
+
         return
 
     ## getname: get the name of a server member
@@ -92,24 +97,28 @@ Character Limit: 32""",
         help="""Type `r! getname @user1 @user2 @user3` and I'll tell you the names of the users you mentioned. You can mention as many people as you like.""",
     )
     @db_connector_no_args
-    async def getName(self, ctx, *, cursor):
-        msg = ""
-        for friend in ctx.message.mentions:
-            # insert newline character if this is not the first friend
-            if msg != "":
-                msg = msg + "\n"
+    async def getName(self, ctx, *, cursor=None):
+        try:
+            msg = ""
+            for friend in ctx.message.mentions:
+                # insert newline character if this is not the first friend
+                if msg != "":
+                    msg = msg + "\n"
 
-            # get name from database
-            name = dbGetName(ctx.guild, friend, cursor)
+                # get name from database
+                name = dbGetName(ctx.guild, friend, cursor)
 
-            # update msg
-            msg = msg + f"{friend.name}"
-            if friend.nick:
-                msg = msg + f" (aka {friend.nick})"
-            msg = msg + f"'s name is {name}."
+                # update msg
+                msg = msg + f"{friend.name}"
+                if friend.nick:
+                    msg = msg + f" (aka {friend.nick})"
+                msg = msg + f"'s name is {name}."
 
-        if msg != "":  # guard against if no users were mentioned
-            await ctx.channel.send(msg)
+            if msg != "":  # guard against if no users were mentioned
+                await ctx.channel.send(msg)
+
+        except Exception as error:
+            print(error)
 
         return
 
