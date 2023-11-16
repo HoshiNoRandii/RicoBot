@@ -16,14 +16,6 @@ You can type `r! help` for a list of valid commands, or `r! help [command]` for 
     return
 
 
-## isUserMent(word): str -> bool
-# returns True if word is a user mention
-# uses the fact that user mentions begin with <@ and end with >
-# assumes that word does not contain any whitespace
-def isUserMent(word):
-    return word.startswith("<@") and word.endswith(">")
-
-
 class CommandsCog(commands.Cog, name="Other Commands"):
     def __init__(self, bot):
         self.bot = bot

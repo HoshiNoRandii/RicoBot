@@ -5,7 +5,7 @@
 import discord
 from discord.ext import commands
 
-from other_cmds import syntaxError, isUserMent
+from other_cmds import syntaxError
 
 # so that we can use the connection pool to connect
 # to the postgres server
@@ -131,7 +131,7 @@ Character Limit: 32""",
     # before and after are instances of discord.Role
     @commands.Cog.listener("on_guild_role_update")
     @db_connector_no_args
-    async def manualUpdate(self, before, after, *, cursor=None):
+    async def manualNameUpdate(self, before, after, *, cursor=None):
         try:
             server = before.guild
 
@@ -149,44 +149,22 @@ Character Limit: 32""",
 ## helper functions ##
 
 
-# gets a user's name from the database
-# server arg is an instance of discord.Guild
-# member arg is an instance of discord.Member
-def dbGetName(server, member, cursor):
-    serverID = server.id
-    userID = member.id
-    tableName = f"user_list_{serverID}"
-
-    selectName = f"""
-    SELECT name
-    FROM {tableName}
-    WHERE user_id = {userID}
-    """
-    cursor.execute(selectName)
-    # cursor.fetchall() returns a list of tuples, where each tuple
-    # is a returned row
-    # this cursor.fetchall() should return [(name,)]
-    name = cursor.fetchall()[0][0]
-
-    return name
+## isUserMent(word): str -> bool
+# returns True if word is a user mention
+# uses the fact that user mentions begin with <@ and end with >
+# assumes that word does not contain any whitespace
+def isUserMent(word):
+    return word.startswith("<@") and word.endswith(">")
 
 
-def dbGetNameList(server, cursor):
-    # grab list of names from db
+
+
     serverID = server.id
     tableName = f"user_list_{serverID}"
     selectName = f"""
     SELECT name
     FROM {tableName}
     """
-    cursor.execute(selectName)
-    # cursor.fetchall() returns a list of tuples, where each tuple
-    # is a returned row
-    # this cursor.fetchall() should return
-    # [(name1,),(name2,),(name3,),...]
-    nameList = listUntuple(cursor.fetchall())
-
-    return nameList
 
 
 # updates a user's name in the user_list table
@@ -203,7 +181,6 @@ def dbUpdateName(server, member, cursor, newName):
     """
     cursor.execute(updateName)
     print(f"user {member.name}'s name set to {newName} in user_list table")
-
     return
 
 
@@ -236,6 +213,44 @@ def isNameRole(role, server, cursor):
     return role.name in nameList
 
 
+# gets a user's name from the database
+# server arg is an instance of discord.Guild
+# member arg is an instance of discord.Member
+def dbGetName(server, member, cursor):
+    serverID = server.id
+    userID = member.id
+    tableName = f"user_list_{serverID}"
+
+    selectName = f"""
+    SELECT name
+    FROM {tableName}
+    WHERE user_id = {userID}
+    """
+    cursor.execute(selectName)
+    # cursor.fetchall() returns a list of tuples, where each tuple
+    # is a returned row
+    # this cursor.fetchall() should return [(name,)]
+    name = cursor.fetchall()[0][0]
+    return name
+
+
+def dbGetNameList(server, cursor):
+    # grab list of names from db
+    serverID = server.id
+    tableName = f"user_list_{serverID}"
+    selectName = f"""
+    SELECT name
+    FROM {tableName}
+    """
+    cursor.execute(selectName)
+    # cursor.fetchall() returns a list of tuples, where each tuple
+    # is a returned row
+    # this cursor.fetchall() should return
+    # [(name1,),(name2,),(name3,),...]
+    nameList = listUntuple(cursor.fetchall())
+    return nameList
+
+
 # listUntuple takes a list of tuples and "unpacks" all the tuples,
 # returning a list
 # ex: listUntuple([(1,), (2,3), (4,)]) == [1, 2, 3, 4]
@@ -247,7 +262,7 @@ def listUntuple(tupList):
     return retList
 
 
-# necessary to link the cog to the main file
+## necessary to link the cog to the main file
 async def setup(bot):
     await bot.add_cog(CommandsCog(bot))
     return
