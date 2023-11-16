@@ -20,7 +20,7 @@ class CommandsCog(commands.Cog, name="Names"):
     # syntax: r! nick @user1 @user2 ... [nickname]
     @commands.command(
         name="nick",
-        aliases=["nickname", "Nick", "Nickname"],
+        aliases=["nickname", "Nick", "Nickname", "NickName", "nickName", "NICKNAME"],
         brief="set friends' nicknames",
         help="""Type `r! nick @user1 @user2 @user3 [nickname]` to change the nicknames of every mentioned user to [nickname]. You can include as many people as you want in the same command.\n
 Character Limit: 32\n
@@ -68,7 +68,7 @@ Notes:
     # syntax: r! setname [name]
     @commands.command(
         name="setname",
-        aliases=["setName", "Setname", "SetName"],
+        aliases=["setName", "Setname", "SetName", "SETNAME"],
         brief="set your name",
         help="""Type `r! setname [name]` to change your name to [name]. This will be the name people see when they use the `getname` command, and will also be listed as a role.\n
 Character Limit: 32""",
@@ -94,7 +94,7 @@ Character Limit: 32""",
     # syntax: r! getname [name]
     @commands.command(
         name="getname",
-        aliases=["getName", "Getname", "GetName"],
+        aliases=["getName", "Getname", "GetName", "GETNAME"],
         brief="view friends' names",
         help="""Type `r! getname @user1 @user2 @user3` and I'll tell you the names of the users you mentioned. You can mention as many people as you like.""",
     )

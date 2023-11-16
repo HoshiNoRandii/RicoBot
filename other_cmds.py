@@ -22,7 +22,10 @@ class CommandsCog(commands.Cog, name="Other Commands"):
 
     ## hi: send 'henlo!'
     @commands.command(
-        name="hi", brief="say hi!", help="Type `r! hi` to say hi to RicoBot."
+        name="hi",
+        aliases=["Hi", "HI"],
+        brief="say hi!",
+        help="Type `r! hi` to say hi to RicoBot.",
     )
     async def hi(self, ctx):
         await ctx.channel.send("henlo!")
@@ -48,6 +51,7 @@ Character Limit: 100""",
     ## help: a custom help command
     @commands.command(
         name="help",
+        aliases=["Help", "HELP"],
         brief="show this help dialogue",
         help="Really now? Clearly you got this.",
     )
