@@ -18,11 +18,17 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+# for logging
+import logging
+
 # so that we can connect to the postgres server
 import connect
 
 # set to True for [BETA] RicoBot
 BETA = True
+
+# set up logging
+discord.utils.setup_logging(level=logging.DEBUG)
 
 # loading in the token
 load_dotenv()
