@@ -28,38 +28,40 @@ Notes:
 - Will not work if the first word in the nickname starts with `<@` and ends with `>`.
 - RicoBot cannot change the nickname of the server owner. He instead will mention them again and ask them to change their name.""",
     )
-    # TODO: have nick update the db
-    async def nick(self, ctx, *args):
-        # check that there are at least 2 arguments
-        # and that the first argument is a user mention
-        if (len(args) < 2) or (not isUserMent(args[0])):
-            await syntaxError(ctx)
-            return
+    @db_connector_with_args
+    async def nick(self, ctx, *args, cursor=None):
+        try:
+            # check that there are at least 2 arguments
+            # and that the first argument is a user mention
+            if (len(args) < 2) or (not isUserMent(args[0])):
+                await syntaxError(ctx)
+                return
 
-        # grab the nickname
-        # find where in the message the nickname starts
-        # uses the fact that user mentions start with '<@' and end with '>'
-        # so the first word in the nickname can't follow this pattern.
-        nnameIndex = 0
-        while isUserMent(args[nnameIndex]):
-            nnameIndex += 1
-        # slice off the nickname
-        nnameList = args[nnameIndex:]
-        # make it one string again
-        nname = " ".join(nnameList)
-        # check that it isn't too long
-        if len(nname) > 32:
-            await ctx.channel.send("that nickname is too long! (max: 32 characters)")
-            return
+            # grab the nickname
+            # find where in the message the nickname starts
+            # uses the fact that user mentions start with '<@' and end with '>'
+            # so the first word in the nickname can't follow this pattern.
+            nnameIndex = 0
+            while isUserMent(args[nnameIndex]):
+                nnameIndex += 1
+            # slice off the nickname
+            nnameList = args[nnameIndex:]
+            # make it one string again
+            nname = " ".join(nnameList)
+            # check that it isn't too long
+            if len(nname) > 32:
+                await ctx.channel.send(
+                    "that nickname is too long! (max: 32 characters)"
+                )
+                return
 
-        # give the nickname to every mentioned user
-        for friend in ctx.message.mentions:
-            if friend == ctx.guild.owner:
-                await ctx.channel.send(f"{friend.mention} change your nickname!!")
-            else:
-                await friend.edit(nick=nname)
-        # announce that it's been changed
-        await ctx.channel.send("nickname changed!")
+            # give the nickname to every mentioned user
+            for friend in ctx.message.mentions:
+                await updateNickname(ctx, friend, nname, cursor)
+
+        except Exception as error:
+            print(error)
+
         return
 
     ## setname: set your name
@@ -122,9 +124,21 @@ Character Limit: 32""",
 
         return
 
-    ## TODO:
     ## make sure to update the db if somebody
     # makes manual changes to their nickname
+    # before and after are instances of discord.Member
+    @commands.Cog.listener("on_member_update")
+    @db_connector_no_args
+    async def manualNickUpdate(self, before, after, *, cursor=None):
+        try:
+            # if nickname changed
+            if before.nick != after.nick:
+                dbUpdateNickname(after.guild, after, cursor)
+
+        except Exception as error:
+            print(error)
+
+        return
 
     ## make sure to update the db if somebody
     # makes manual changes to their name role
@@ -157,14 +171,38 @@ def isUserMent(word):
     return word.startswith("<@") and word.endswith(">")
 
 
+# updates a user's nickname in the server
+# and in the user_list table
+# ctx argument is an instance of discord.ext.commands.Context
+# member argument is an instance of discord.Member
+async def updateNickname(ctx, member, newNick, cursor):
+    if member == ctx.guild.owner:
+        await ctx.channel.send(f"{member.mention} change your nickname!!")
+    else:
+        await member.edit(nick=newNick)
+        dbUpdateNickname(ctx.guild, member, cursor)
+        # announce that it's been changed
+        await ctx.channel.send("nickname changed!")
+    return
 
 
+# updates a user's nickname in the user_list table
+# pulls nickname from the server
+# server argument is an instance of discord.Guild
+# member argument is an instance of discord.Member
+def dbUpdateNickname(server, member, cursor):
     serverID = server.id
     tableName = f"user_list_{serverID}"
-    selectName = f"""
-    SELECT name
-    FROM {tableName}
+    userID = member.id
+    newNick = member.nick
+    updateNick = f"""
+    UPDATE {tableName}
+    SET nickname ='{newNick}'
+    WHERE user_id = {userID}
     """
+    cursor.execute(updateNick)
+    print(f"user {member.name}'s nickname set to {newNick} in user_list table")
+    return
 
 
 # updates a user's name in the user_list table
