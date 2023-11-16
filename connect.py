@@ -4,6 +4,7 @@
 import psycopg2
 from psycopg2 import pool
 import inspect
+from functools import wraps
 
 from config import config
 
@@ -52,6 +53,7 @@ def closePool(connPool):
 # and also must be an async function
 def db_connector_no_args(func):
     # wrapper function
+    @wraps(func)
     async def inner(*args, **kwargs):
         print(
             f"Attempting to connect to the postgres database to execute {func.__name__}"
@@ -102,6 +104,7 @@ def db_connector_no_args(func):
 # and also must be an async function
 def db_connector_with_args(func):
     # wrapper function
+    @wraps(func)
     async def inner(self, ctx, *args, **kwargs):
         print(
             f"Attempting to connect to the postgres database to execute {func.__name__}"
