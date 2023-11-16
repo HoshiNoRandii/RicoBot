@@ -124,9 +124,26 @@ Character Limit: 32""",
 
     ## TODO:
     ## make sure to update the db if somebody
-    ## makes manual changes to their name
-    # @commands.Cog.listener("on_member_update")
-    # async def manualUpdate(self, before, after):
+    # makes manual changes to their nickname
+
+    ## make sure to update the db if somebody
+    # makes manual changes to their name role
+    # before and after are instances of discord.Role
+    @commands.Cog.listener("on_guild_role_update")
+    @db_connector_no_args
+    async def manualUpdate(self, before, after, *, cursor=None):
+        try:
+            server = before.guild
+
+            # manual name role update
+            if isNameRole(before, server, cursor):
+                for member in after.members:
+                    dbUpdateName(server, member, cursor, after.name)
+
+        except Exception as error:
+            print(error)
+
+        return
 
 
 ## helper functions ##
