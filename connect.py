@@ -232,6 +232,13 @@ def dbGetPronouns(server, member, cursor):
     return dbGet("pronouns", server, member, cursor)
 
 
+# gets a user's dev status from the database
+# server arg is an instance of discord.Guild
+# member arg is an instance of discord.Member
+def dbGetDevFlag(server, member, cursor):
+    return dbGet("dev_flag", server, member, cursor)
+
+
 # gets the list of all names in the database
 # server arg is an instance of discord.Guild
 def dbGetNameList(server, cursor):

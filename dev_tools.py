@@ -5,10 +5,37 @@
 import discord
 from discord.ext import commands
 
+from functools import wraps
+import inspect
+
 # so that we can use the connection pool to connect
 # to the postgres server
 # creates an async function
-from connect import db_connector_no_args
+from connect import db_connector_no_args, dbGetDevFlag
+
+
+# decorator function to add to dev-only commands
+# decorator should come after db_connector decorator
+# any function wrapped with dev_only must have
+# (self, ctx) as the first two arguments and
+# cursor as a keyword only argument
+# and also must be an async function
+def dev_only(func):
+    # wrapper function
+    @wraps(func)
+    async def inner(self, ctx, *args, cursor=None, **kwargs):
+        if "cursor" in inspect.getfullargspec(func).kwonlyargs:
+            # if user is a dev
+            if dbGetDevFlag(ctx.guild, ctx.author, cursor):
+                await func(self, ctx, *args, **kwargs)
+                return
+            # if user is not a dev
+            else:
+                await ctx.channel.send("you aren't allowed to do that \:/")
+                return
+        return
+
+    return inner
 
 
 class CommandsCog(commands.Cog, name="Dev Tools"):
@@ -61,6 +88,17 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         except Exception as error:
             print(error)
 
+        return
+
+    @commands.command(
+        name="forbidden",
+        brief="test dev status",
+        help="test dev status",
+    )
+    @db_connector_no_args
+    @dev_only
+    async def forbidden(self, ctx, *, cursor=None):
+        await ctx.channel.send("\:)")
         return
 
 
