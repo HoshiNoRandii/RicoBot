@@ -153,7 +153,7 @@ def db_connector_with_args(func):
 ## database access functions ##
 
 # columns in the user_list table
-userListColumns = ["user_id", "username", "name", "pronouns", "nickname"]
+userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "dev_flag"]
 
 
 # get functions

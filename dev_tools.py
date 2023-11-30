@@ -17,7 +17,7 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
 
     ## createUserList: create and update the user_list table in the database
     # user_list table has the columns:
-    #   user_id, username, name, pronouns, nickname
+    #   user_id, username, name, pronouns, nickname, dev_flag
     @commands.command(
         name="createUserList",
         brief="create user_list table",
@@ -35,7 +35,8 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
                 username TEXT,
                 name TEXT,
                 pronouns TEXT,
-                nickname TEXT
+                nickname TEXT,
+                dev_flag BOOL
             )
             """
             cursor.execute(createTable)
@@ -47,8 +48,8 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
                 mUsername = member.name
                 mNickname = member.nick
                 insertInto = f"""
-                INSERT INTO {tableName} (user_id, username, nickname)
-                VALUES ({mUserID}, '{mUsername}', '{mNickname}')
+                INSERT INTO {tableName} (user_id, username, nickname, dev_flag)
+                VALUES ({mUserID}, '{mUsername}', '{mNickname}', FALSE)
                 ON CONFLICT (user_id)
                 DO
                     UPDATE SET username = '{mUsername}',
