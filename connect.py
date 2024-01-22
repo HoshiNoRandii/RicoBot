@@ -310,7 +310,7 @@ def dbUpdateColumn(column, newInfoList, server, cursor):
 # updates a user's name in the user_list table
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-# newName is last argument to match syntax of updateNameRole,
+# newName is last argument to match syntax of updateName,
 # where newName is an optional arg with default value None
 def dbUpdateName(server, member, cursor, newName):
     return dbUpdate("name", newName, server, member, cursor)

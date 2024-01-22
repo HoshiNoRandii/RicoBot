@@ -91,8 +91,7 @@ Character Limit: 32""",
             if len(newName) > 32:
                 await ctx.channel.send("that name is too long! (max: 32 characters)")
                 return
-            await updateNameRole(ctx.guild, ctx.author, cursor, newName)
-            dbUpdateName(ctx.guild, ctx.author, cursor, newName)
+            await updateName(ctx.guild, ctx.author, cursor, newName)
             await ctx.channel.send("name set!")
 
         except Exception as error:
@@ -155,7 +154,7 @@ Character Limit: 32""",
     # before and after are instances of discord.Role
     @commands.Cog.listener("on_guild_role_update")
     @db_connector_no_args
-    async def manualNameUpdate(self, before, after, *, cursor=None):
+    async def nameUpdateListener(self, before, after, *, cursor=None):
         try:
             server = before.guild
 
@@ -196,31 +195,38 @@ async def updateNickname(ctx, member, newNick, cursor):
 
 
 # updates a user's name role
+# and their name in the user_list
 # server argument is an instance of discord.Guild
 # member argument is an instance of discord.Member
 # if no newName is provided, name will update to the one
 # stored in the database
-async def updateNameRole(server, member, cursor, newName=None):
+# optional argument oldNames is necessary when this
+# function is called after updating the database
+async def updateName(server, member, cursor, newName=None, oldNames=[]):
     if newName == None:
         # grab name from database if none provided
         newName = dbGetName(server, member, cursor)
 
     # check for existing name role
     for role in member.roles:
-        if isNameRole(role, server, cursor):
+        if isNameRole(role, server, cursor, oldNames):
             await role.edit(name=f"{newName}")
+            # listener will push newName to db
             return
 
     # if no existing name role, create one
     role = await server.create_role(name=f"{newName}")
     await member.add_roles(role)
+    dbUpdateName(server, member, cursor, newName)
     return
 
 
 # isNameRole checks if a role is a "name role",
 # i.e. its name matches a name in the user_list table
-def isNameRole(role, server, cursor):
-    nameList = dbGetNameList(server, cursor)
+# optional argument oldNames is necessary when this
+# function is called after updating the database
+def isNameRole(role, server, cursor, oldNames=[]):
+    nameList = oldNames + dbGetNameList(server, cursor)
     return role.name in nameList
 
 
