@@ -239,6 +239,12 @@ def dbGetDevFlag(server, member, cursor):
     return dbGet("dev_flag", server, member, cursor)
 
 
+# gets the list of all user id's in the database
+# server arg is an instance of discord.Guild
+def dbGetUIDList(server, cursor):
+    return dbGetList("user_id", server, cursor)
+
+
 # gets the list of all names in the database
 # server arg is an instance of discord.Guild
 def dbGetNameList(server, cursor):
@@ -277,6 +283,30 @@ def dbUpdate(column, newInfo, server, member, cursor):
     return
 
 
+# update an entire column of the user_list table at once
+# server arg is an instance of discord.Guild
+def dbUpdateColumn(column, newInfoList, server, cursor):
+    # check that column is valid
+    if column not in userListColumns:
+        print(f'no column named "{column}" in user_list table')
+        return
+    # column is valid, update info
+    serverID = server.id
+    tableName = f"user_list_{serverID}"
+    # grab list of userID's
+    uidList = dbGetUIDList(server, cursor)
+    i = 0
+    while i < len(uidList) and i < len(newInfoList):
+        update = f"""
+        UPDATE {tableName}
+        SET {column} = '{newInfoList[i]}'
+        WHERE user_id = {uidList[i]}
+        """
+        cursor.execute(update)
+        i += 1
+    print(f"{column} column updated in user_list table")
+
+
 # updates a user's name in the user_list table
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
@@ -299,3 +329,9 @@ def dbUpdatePronouns(server, member, cursor, newPro):
 # member arg is an instance of discord.Member
 def dbUpdateNickname(server, member, cursor):
     return dbUpdate("nickname", member.nick, server, member, cursor)
+
+
+# update the name column of the user_list table
+# server arg is an instance of discord.Guild
+def dbUpdateNameCol(newNames, server, cursor):
+    return dbUpdateColumn("name", newNames, server, cursor)
