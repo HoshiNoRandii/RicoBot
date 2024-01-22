@@ -11,7 +11,11 @@ import inspect
 # so that we can use the connection pool to connect
 # to the postgres server
 # creates an async function
-from connect import db_connector_no_args, dbGetDevFlag
+from connect import (
+    db_connector_no_args,
+    db_connector_with_args,
+    dbGetDevFlag,
+)
 
 
 # decorator function to add to dev-only commands
@@ -24,13 +28,17 @@ def dev_only(func):
     # wrapper function
     @wraps(func)
     async def inner(self, ctx, *args, cursor=None, **kwargs):
+        print("Checking dev status...")
         if "cursor" in inspect.getfullargspec(func).kwonlyargs:
             # if user is a dev
             if dbGetDevFlag(ctx.guild, ctx.author, cursor):
+                print("dev status confirmed")
+                kwargs["cursor"] = cursor
                 await func(self, ctx, *args, **kwargs)
                 return
             # if user is not a dev
             else:
+                print("not a dev")
                 await ctx.channel.send("you aren't allowed to do that \:/")
                 return
         return
