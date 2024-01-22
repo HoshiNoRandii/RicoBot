@@ -67,7 +67,7 @@ Notes:
 
             # give the nickname to every mentioned user
             for friend in ctx.message.mentions:
-                await updateNickname(ctx, friend, nname, cursor)
+                await updateNickname(ctx, friend, nname)
 
         except Exception as error:
             print(error)
@@ -184,7 +184,7 @@ def isUserMent(word):
 # listener will push update to the user_list table
 # ctx argument is an instance of discord.ext.commands.Context
 # member argument is an instance of discord.Member
-async def updateNickname(ctx, member, newNick, cursor):
+async def updateNickname(ctx, member, newNick):
     if member == ctx.guild.owner:
         await ctx.channel.send(f"{member.mention} change your nickname!!")
     else:
