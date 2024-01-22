@@ -139,7 +139,7 @@ Character Limit: 32""",
     # before and after are instances of discord.Member
     @commands.Cog.listener("on_member_update")
     @db_connector_no_args
-    async def manualNickUpdate(self, before, after, *, cursor=None):
+    async def nickUpdateListener(self, before, after, *, cursor=None):
         try:
             # if nickname changed
             if before.nick != after.nick:
@@ -182,7 +182,7 @@ def isUserMent(word):
 
 
 # updates a user's nickname in the server
-# and in the user_list table
+# listener will push update to the user_list table
 # ctx argument is an instance of discord.ext.commands.Context
 # member argument is an instance of discord.Member
 async def updateNickname(ctx, member, newNick, cursor):
@@ -190,7 +190,6 @@ async def updateNickname(ctx, member, newNick, cursor):
         await ctx.channel.send(f"{member.mention} change your nickname!!")
     else:
         await member.edit(nick=newNick)
-        dbUpdateNickname(ctx.guild, member, cursor)
         # announce that it's been changed
         await ctx.channel.send("nickname changed!")
     return
