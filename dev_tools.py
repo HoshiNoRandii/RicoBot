@@ -15,6 +15,7 @@ from connect import (
     db_connector_no_args,
     db_connector_with_args,
     dbGetDevFlag,
+    dbUpdateNameCol,
 )
 
 
@@ -98,6 +99,7 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
 
         return
 
+    ## forbidden: check if you are a dev in the db
     @commands.command(
         name="forbidden",
         brief="test dev status",
@@ -107,6 +109,19 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
     @dev_only
     async def forbidden(self, ctx, *, cursor=None):
         await ctx.channel.send("\:)")
+        return
+
+    ## devInsertNames: update the entire name column
+    # in the user_list table
+    @commands.command(
+        name="devInsertNames",
+        brief="update the entire name column in the user_list table",
+        help="update the entire name column in the user_list table; be sure to check the current order of users in the table",
+    )
+    @db_connector_with_args
+    @dev_only
+    async def devInsertNames(self, ctx, *args, cursor=None):
+        dbUpdateNameCol(args, ctx.guild, cursor)
         return
 
 
