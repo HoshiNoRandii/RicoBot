@@ -9,9 +9,9 @@ from other_cmds import syntaxError
 
 # so that we can use the connection pool to connect
 # to the postgres server
-from connect import (
-    db_connector_no_args,
-    db_connector_with_args,
+from connect import db_connector_no_args, db_connector_with_args
+
+from database import (
     dbGetName,
     dbGetPronouns,
     dbGetNameList,

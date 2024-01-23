@@ -12,13 +12,12 @@ import asyncio
 # so that we can use the connection pool to connect
 # to the postgres server
 # creates an async function
-from connect import (
-    db_connector_no_args,
-    db_connector_with_args,
+from connect import db_connector_no_args, db_connector_with_args
+
+from database import (
     dbGetDevFlag,
-    dbGetNameList,
-    dbUpdateNameCol,
 )
+
 from names import updateName
 
 
