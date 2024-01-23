@@ -2,7 +2,6 @@
 # a cog containing commands for developer use
 
 # so that we can use the Discord API
-import discord
 from discord.ext import commands
 
 from functools import wraps

@@ -2,7 +2,6 @@
 # a cog containing RicoBot's naming-related commands
 
 # so that we can use the Discord API
-import discord
 from discord.ext import commands
 
 from other_cmds import syntaxError
@@ -13,11 +12,8 @@ from connect import db_connector_no_args, db_connector_with_args
 
 from database.user_list import (
     ulGetName,
-    ulGetPronouns,
     ulGetNameList,
-    ulGetPronounList,
     ulUpdateName,
-    ulUpdatePronouns,
     ulUpdateNickname,
 )
 
