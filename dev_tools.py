@@ -14,8 +14,8 @@ import asyncio
 # creates an async function
 from connect import db_connector_no_args, db_connector_with_args
 
-from database import (
-    dbGetDevFlag,
+from database.user_list import (
+    ulGetDevFlag,
 )
 
 from names import updateName
@@ -34,7 +34,7 @@ def dev_only(func):
         print("Checking dev status...")
         if "cursor" in inspect.getfullargspec(func).kwonlyargs:
             # if user is a dev
-            if dbGetDevFlag(ctx.guild, ctx.author, cursor):
+            if ulGetDevFlag(ctx.guild, ctx.author, cursor):
                 print("dev status confirmed")
                 kwargs["cursor"] = cursor
                 await func(self, ctx, *args, **kwargs)

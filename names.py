@@ -11,14 +11,14 @@ from other_cmds import syntaxError
 # to the postgres server
 from connect import db_connector_no_args, db_connector_with_args
 
-from database import (
-    dbGetName,
-    dbGetPronouns,
-    dbGetNameList,
-    dbGetPronounList,
-    dbUpdateName,
-    dbUpdatePronouns,
-    dbUpdateNickname,
+from database.user_list import (
+    ulGetName,
+    ulGetPronouns,
+    ulGetNameList,
+    ulGetPronounList,
+    ulUpdateName,
+    ulUpdatePronouns,
+    ulUpdateNickname,
 )
 
 
@@ -117,7 +117,7 @@ Character Limit: 32""",
                     msg = msg + "\n"
 
                 # get name from database
-                name = dbGetName(ctx.guild, friend, cursor)
+                name = ulGetName(ctx.guild, friend, cursor)
 
                 # update msg
                 msg = msg + f"{friend.name}"
@@ -142,7 +142,7 @@ Character Limit: 32""",
         try:
             # if nickname changed
             if before.nick != after.nick:
-                dbUpdateNickname(after.guild, after, cursor)
+                ulUpdateNickname(after.guild, after, cursor)
 
         except Exception as error:
             print(error)
@@ -161,7 +161,7 @@ Character Limit: 32""",
             # manual name role update
             if isNameRole(before, server, cursor):
                 for member in after.members:
-                    dbUpdateName(server, member, cursor, after.name)
+                    ulUpdateName(server, member, cursor, after.name)
 
         except Exception as error:
             print(error)
@@ -203,7 +203,7 @@ async def updateNickname(ctx, member, newNick):
 async def updateName(server, member, cursor, newName=None):
     if newName == None:
         # grab name from database if none provided
-        newName = dbGetName(server, member, cursor)
+        newName = ulGetName(server, member, cursor)
 
     # check for existing name role
     for role in member.roles:
@@ -215,14 +215,14 @@ async def updateName(server, member, cursor, newName=None):
     # if no existing name role, create one
     role = await server.create_role(name=f"{newName}")
     await member.add_roles(role)
-    dbUpdateName(server, member, cursor, newName)
+    ulUpdateName(server, member, cursor, newName)
     return
 
 
 # isNameRole checks if a role is a "name role",
 # i.e. its name matches a name in the user_list table
 def isNameRole(role, server, cursor):
-    nameList = dbGetNameList(server, cursor)
+    nameList = ulGetNameList(server, cursor)
     return role.name in nameList
 
 

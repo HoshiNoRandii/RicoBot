@@ -1,4 +1,4 @@
-### database access functions
+### functions accessing the user_list table in the database
 
 # columns in the user_list table
 userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "dev_flag"]
@@ -10,7 +10,7 @@ userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "dev_f
 # gets a user's info from the selected column
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def dbGet(column, server, member, cursor):
+def ulGet(column, server, member, cursor):
     # check that column is valid
     if column not in userListColumns:
         print(f'no column named "{column}" in user_list table')
@@ -34,7 +34,7 @@ def dbGet(column, server, member, cursor):
 
 # fetches an entire column from the user_list table
 # server arg is an instance of discord.Guild
-def dbGetList(column, server, cursor):
+def ulGetList(column, server, cursor):
     # check that column is valid
     if column not in userListColumns:
         print(f'no column named "{column}" in user_list table')
@@ -69,41 +69,41 @@ def listUntuple(tupList):
 # gets a user's name from the database
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def dbGetName(server, member, cursor):
-    return dbGet("name", server, member, cursor)
+def ulGetName(server, member, cursor):
+    return ulGet("name", server, member, cursor)
 
 
 # gets a user's pronouns from the database
 # server arg is an instance or discord.Guild
 # member arg is an instance of discord.Member
-def dbGetPronouns(server, member, cursor):
-    return dbGet("pronouns", server, member, cursor)
+def ulGetPronouns(server, member, cursor):
+    return ulGet("pronouns", server, member, cursor)
 
 
 # gets a user's dev status from the database
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def dbGetDevFlag(server, member, cursor):
-    return dbGet("dev_flag", server, member, cursor)
+def ulGetDevFlag(server, member, cursor):
+    return ulGet("dev_flag", server, member, cursor)
 
 
 # gets the list of all user id's in the database
 # server arg is an instance of discord.Guild
-def dbGetUIDList(server, cursor):
-    return dbGetList("user_id", server, cursor)
+def ulGetUIDList(server, cursor):
+    return ulGetList("user_id", server, cursor)
 
 
 # gets the list of all names in the database
 # server arg is an instance of discord.Guild
-def dbGetNameList(server, cursor):
-    return dbGetList("name", server, cursor)
+def ulGetNameList(server, cursor):
+    return ulGetList("name", server, cursor)
 
 
 # gets the list of all the pronoun sets
 # in the database
 # server arg is an instance of discord.Guild
-def dbGetPronounList(server, cursor):
-    return dbGetList("pronouns", server, cursor)
+def ulGetPronounList(server, cursor):
+    return ulGetList("pronouns", server, cursor)
 
 
 # update functions
@@ -112,7 +112,7 @@ def dbGetPronounList(server, cursor):
 # udpate a user's info in the database in the selected column
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def dbUpdate(column, newInfo, server, member, cursor):
+def ulUpdate(column, newInfo, server, member, cursor):
     # check that column is valid
     if column not in userListColumns:
         print(f'no column named "{column}" in user_list table')
@@ -133,7 +133,7 @@ def dbUpdate(column, newInfo, server, member, cursor):
 
 # update an entire column of the user_list table at once
 # server arg is an instance of discord.Guild
-def dbUpdateColumn(column, newInfoList, server, cursor):
+def ulUpdateColumn(column, newInfoList, server, cursor):
     # check that column is valid
     if column not in userListColumns:
         print(f'no column named "{column}" in user_list table')
@@ -142,7 +142,7 @@ def dbUpdateColumn(column, newInfoList, server, cursor):
     serverID = server.id
     tableName = f"user_list_{serverID}"
     # grab list of userID's
-    uidList = dbGetUIDList(server, cursor)
+    uidList = ulGetUIDList(server, cursor)
     if uidList != None:
         i = 0
         while i < len(uidList) and i < len(newInfoList):
@@ -162,26 +162,26 @@ def dbUpdateColumn(column, newInfoList, server, cursor):
 # member arg is an instance of discord.Member
 # newName is last argument to match syntax of updateName,
 # where newName is an optional arg with default value None
-def dbUpdateName(server, member, cursor, newName):
-    return dbUpdate("name", newName, server, member, cursor)
+def ulUpdateName(server, member, cursor, newName):
+    return ulUpdate("name", newName, server, member, cursor)
 
 
 # updates a user's pronouns in the user_list table
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def dbUpdatePronouns(server, member, cursor, newPro):
-    return dbUpdate("pronouns", newPro, server, member, cursor)
+def ulUpdatePronouns(server, member, cursor, newPro):
+    return ulUpdate("pronouns", newPro, server, member, cursor)
 
 
 # updates a user's nickname in the user_list table
 # pulls nickname from the server
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def dbUpdateNickname(server, member, cursor):
-    return dbUpdate("nickname", member.nick, server, member, cursor)
+def ulUpdateNickname(server, member, cursor):
+    return ulUpdate("nickname", member.nick, server, member, cursor)
 
 
 # update the name column of the user_list table
 # server arg is an instance of discord.Guild
-def dbUpdateNameCol(newNames, server, cursor):
-    return dbUpdateColumn("name", newNames, server, cursor)
+def ulUpdateNameCol(newNames, server, cursor):
+    return ulUpdateColumn("name", newNames, server, cursor)
