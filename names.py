@@ -200,16 +200,14 @@ async def updateNickname(ctx, member, newNick):
 # member argument is an instance of discord.Member
 # if no newName is provided, name will update to the one
 # stored in the database
-# optional argument oldNames is necessary when this
-# function is called after updating the database
-async def updateName(server, member, cursor, newName=None, oldNames=[]):
+async def updateName(server, member, cursor, newName=None):
     if newName == None:
         # grab name from database if none provided
         newName = dbGetName(server, member, cursor)
 
     # check for existing name role
     for role in member.roles:
-        if isNameRole(role, server, cursor, oldNames):
+        if isNameRole(role, server, cursor):
             await role.edit(name=f"{newName}")
             # listener will push newName to db
             return
@@ -223,10 +221,8 @@ async def updateName(server, member, cursor, newName=None, oldNames=[]):
 
 # isNameRole checks if a role is a "name role",
 # i.e. its name matches a name in the user_list table
-# optional argument oldNames is necessary when this
-# function is called after updating the database
-def isNameRole(role, server, cursor, oldNames=[]):
-    nameList = oldNames + dbGetNameList(server, cursor)
+def isNameRole(role, server, cursor):
+    nameList = dbGetNameList(server, cursor)
     return role.name in nameList
 
 

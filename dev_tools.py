@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from functools import wraps
 import inspect
+import asyncio
 
 # so that we can use the connection pool to connect
 # to the postgres server
@@ -15,8 +16,10 @@ from connect import (
     db_connector_no_args,
     db_connector_with_args,
     dbGetDevFlag,
+    dbGetNameList,
     dbUpdateNameCol,
 )
+from names import updateName
 
 
 # decorator function to add to dev-only commands
@@ -131,12 +134,40 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
     @commands.command(
         name="devInsertNames",
         brief="update the entire name column in the user_list table",
-        help="update the entire name column in the user_list table; be sure to check the current order of users in the table",
+        help="update the entire name column in the user_list table; be sure to use checkUserOrder first",
     )
     @db_connector_with_args
     @dev_only
     async def devInsertNames(self, ctx, *args, cursor=None):
-        dbUpdateNameCol(args, ctx.guild, cursor)
+        # grab list of usernames
+        unameList = list(map(lambda x: x.name, ctx.guild.members))
+
+        # zip with list of names to add to db
+        updateListReadable = list(zip(unameList, args))
+
+        await ctx.channel.send(f"Does this look right? \n{updateListReadable}")
+
+        def check(msg):
+            return msg.channel == ctx.channel
+
+        try:
+            # wait for approval
+            ans = await self.bot.wait_for("message", check=check, timeout=60.0)
+        except asyncio.TimeoutError:
+            await ctx.channel.send("You took too long to approve the list! Start over.")
+        else:
+            # if it does not look right
+            if ans.content not in ["y", "Y", "yes", "Yes", "YES"]:
+                await ctx.channel.send(f"Oops. Start the command over.")
+                return
+
+            # if it does look right
+            # updateList with (Discord.member, str) entries
+            updateList = list(zip(ctx.guild.members, args))
+            for tup in updateList:
+                await updateName(ctx.guild, tup[0], cursor, tup[1])
+            await ctx.channel.send("Names updated!")
+
         return
 
 
