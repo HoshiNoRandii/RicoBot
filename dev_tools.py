@@ -111,6 +111,21 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         await ctx.channel.send("\:)")
         return
 
+    ## checkUserOrder: check the order that users are
+    # listed in ctx.guild.members
+    @commands.command(
+        name="checkUserOrder",
+        brief="check the order that users are listed in ctx.guild.members",
+        help="check the order that users are listed in ctx.guild.members",
+    )
+    @db_connector_no_args
+    @dev_only
+    async def checkUserOrder(self, ctx, *, cursor=None):
+        msg = ""
+        for member in ctx.guild.members:
+            msg = msg + f"{member.name} "
+        await ctx.channel.send(msg)
+
     ## devInsertNames: update the entire name column
     # in the user_list table
     @commands.command(
