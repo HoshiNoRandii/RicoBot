@@ -14,7 +14,9 @@ import asyncio
 from connect import db_connector_no_args, db_connector_with_args
 
 from database.user_list import (
+    ulCreate,
     ulGetDevFlag,
+    ulPopulate,
 )
 
 from names import updateName
@@ -62,42 +64,8 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
     )
     @db_connector_no_args
     async def createUserList(self, ctx, *, cursor=None):
-        try:
-            # create table
-            serverID = ctx.guild.id
-            tableName = f"user_list_{serverID}"
-            createTable = f"""
-            CREATE TABLE IF NOT EXISTS {tableName} (
-                user_id BIGINT PRIMARY KEY,
-                username TEXT,
-                name TEXT,
-                pronouns TEXT,
-                nickname TEXT,
-                dev_flag BOOL
-            )
-            """
-            cursor.execute(createTable)
-            print("user_list table exists")
-
-            # populate table
-            for member in ctx.guild.members:
-                mUserID = member.id
-                mUsername = member.name
-                mNickname = member.nick
-                insertInto = f"""
-                INSERT INTO {tableName} (user_id, username, nickname, dev_flag)
-                VALUES ({mUserID}, '{mUsername}', '{mNickname}', FALSE)
-                ON CONFLICT (user_id)
-                DO
-                    UPDATE SET username = '{mUsername}',
-                               nickname = '{mNickname}'
-                """
-                cursor.execute(insertInto)
-            print("user_list table populated")
-
-        except Exception as error:
-            print(error)
-
+        ulCreate(ctx.guild, cursor)
+        ulPopulate(ctx.guild, cursor)
         return
 
     ## forbidden: check if you are a dev in the db

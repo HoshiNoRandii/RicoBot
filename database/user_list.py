@@ -1,7 +1,61 @@
-### functions accessing the user_list table in the database
+### functions related to the user_list table in the database
 
 # columns in the user_list table
 userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "dev_flag"]
+
+
+# create the user_list table
+# server: discord.Guild
+def ulCreate(server, cursor):
+    try:
+        # create table
+        serverID = server.id
+        tableName = f"user_list_{serverID}"
+        createTable = f"""
+           CREATE TABLE IF NOT EXISTS {tableName} (
+               user_id BIGINT PRIMARY KEY,
+               username TEXT,
+               name TEXT,
+               pronouns TEXT,
+               nickname TEXT,
+               dev_flag BOOL
+           )
+           """
+        cursor.execute(createTable)
+        print("user_list table exists")
+
+    except Exception as error:
+        print(error)
+
+    return
+
+
+# populate or update the entire user_list table
+# server: discord.Guild
+def ulPopulate(server, cursor):
+    try:
+        serverID = server.id
+        tableName = f"user_list_{serverID}"
+
+        for member in server.members:
+            mUserID = member.id
+            mUsername = member.name
+            mNickname = member.nick
+            insertInto = f"""
+               INSERT INTO {tableName} (user_id, username, nickname, dev_flag)
+               VALUES ({mUserID}, '{mUsername}', '{mNickname}', FALSE)
+               ON CONFLICT (user_id)
+               DO
+                   UPDATE SET username = '{mUsername}',
+                              nickname = '{mNickname}'
+               """
+            cursor.execute(insertInto)
+        print("user_list table populated")
+
+    except Exception as error:
+        print(error)
+
+    return
 
 
 # get functions
