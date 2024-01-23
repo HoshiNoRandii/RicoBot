@@ -70,19 +70,25 @@ def ulGet(column, server, member, cursor):
         print(f'no column named "{column}" in user_list table')
         return
     # column is valid, grab info
-    serverID = server.id
-    userID = member.id
-    tableName = f"user_list_{serverID}"
-    select = f"""
-    SELECT {column}
-    FROM {tableName}
-    WHERE user_id = {userID}
-    """
-    cursor.execute(select)
-    # cursor.fetchall() returns a list of tuples, where each tuple
-    # is a returned row
-    # this cursor.fetchall() should return [(info,)]
-    ret = cursor.fetchall()[0][0]
+    ret = None
+    try:
+        serverID = server.id
+        userID = member.id
+        tableName = f"user_list_{serverID}"
+        select = f"""
+        SELECT {column}
+        FROM {tableName}
+        WHERE user_id = {userID}
+        """
+        cursor.execute(select)
+        # cursor.fetchall() returns a list of tuples, where each tuple
+        # is a returned row
+        # this cursor.fetchall() should return [(info,)]
+        ret = cursor.fetchall()[0][0]
+
+    except Exception as error:
+        print(error)
+
     return ret
 
 
@@ -94,18 +100,24 @@ def ulGetList(column, server, cursor):
         print(f'no column named "{column}" in user_list table')
         return
     # column is valid, grab info
-    serverID = server.id
-    tableName = f"user_list_{serverID}"
-    select = f"""
-    SELECT {column}
-    FROM {tableName}
-    """
-    cursor.execute(select)
-    # cursor.fetchall() returns a list of tuples, where each tuple
-    # is a returned row
-    # this cursor.fetchall() should return
-    # [(info1,),(info2,),(info3,),...]
-    retList = listUntuple(cursor.fetchall())
+    retList = None
+    try:
+        serverID = server.id
+        tableName = f"user_list_{serverID}"
+        select = f"""
+        SELECT {column}
+        FROM {tableName}
+        """
+        cursor.execute(select)
+        # cursor.fetchall() returns a list of tuples, where each tuple
+        # is a returned row
+        # this cursor.fetchall() should return
+        # [(info1,),(info2,),(info3,),...]
+        retList = listUntuple(cursor.fetchall())
+
+    except Exception as error:
+        print(error)
+
     return retList
 
 
@@ -172,16 +184,21 @@ def ulUpdate(column, newInfo, server, member, cursor):
         print(f'no column named "{column}" in user_list table')
         return
     # column is valid, update info
-    serverID = server.id
-    tableName = f"user_list_{serverID}"
-    userID = member.id
-    update = f"""
-    UPDATE {tableName}
-    SET {column} = '{newInfo}'
-    WHERE user_id = {userID}
-    """
-    cursor.execute(update)
-    print(f"user {member.name}'s {column} set to {newInfo} in user_list table")
+    try:
+        serverID = server.id
+        tableName = f"user_list_{serverID}"
+        userID = member.id
+        update = f"""
+        UPDATE {tableName}
+        SET {column} = '{newInfo}'
+        WHERE user_id = {userID}
+        """
+        cursor.execute(update)
+        print(f"user {member.name}'s {column} set to {newInfo} in user_list table")
+
+    except Exception as error:
+        print(error)
+
     return
 
 
@@ -193,21 +210,26 @@ def ulUpdateColumn(column, newInfoList, server, cursor):
         print(f'no column named "{column}" in user_list table')
         return
     # column is valid, update info
-    serverID = server.id
-    tableName = f"user_list_{serverID}"
-    # grab list of userID's
-    uidList = ulGetUIDList(server, cursor)
-    if uidList != None:
-        i = 0
-        while i < len(uidList) and i < len(newInfoList):
-            update = f"""
-            UPDATE {tableName}
-            SET {column} = '{newInfoList[i]}'
-            WHERE user_id = {uidList[i]}
-            """
-            cursor.execute(update)
-            i += 1
-        print(f"{column} column updated in user_list table")
+    try:
+        serverID = server.id
+        tableName = f"user_list_{serverID}"
+        # grab list of userID's
+        uidList = ulGetUIDList(server, cursor)
+        if uidList != None:
+            i = 0
+            while i < len(uidList) and i < len(newInfoList):
+                update = f"""
+                UPDATE {tableName}
+                SET {column} = '{newInfoList[i]}'
+                WHERE user_id = {uidList[i]}
+                """
+                cursor.execute(update)
+                i += 1
+            print(f"{column} column updated in user_list table")
+
+    except Exception as error:
+        print(error)
+
     return
 
 
