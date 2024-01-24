@@ -12,7 +12,6 @@ from connect import db_connector_no_args, db_connector_with_args
 
 from database.user_list import (
     ulGetName,
-    ulGetNameList,
     ulUpdateName,
     ulUpdateNickname,
 )
