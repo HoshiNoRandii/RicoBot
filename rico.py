@@ -39,7 +39,7 @@ discord.utils.setup_logging(level=logging.DEBUG)
 
 # loading in the token
 load_dotenv()
-if BETA == True:
+if BETA:
     token = environ["BETA_TOKEN"]
 else:
     token = environ["TOKEN"]
