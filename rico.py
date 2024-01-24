@@ -26,6 +26,7 @@ import connect
 
 # to read list of dev user ID's
 from config import config
+from database.bot_roles import brCreate
 
 # to build/refresh the database on start
 from database.user_list import ulCreate, ulDevInit, ulPopulate
@@ -70,12 +71,13 @@ async def loadCogs():
 @connect.db_connector_no_args
 async def dbStartup(*, cursor=None):
     for server in bot.guilds:
-        print(f"Initializing user_list table for {server.name}...")
+        print(f"Initializing database for {server.name}...")
         ulCreate(server, cursor)
         ulPopulate(server, cursor)
         devIDListStr = config(section="developers", listVals=True)["devlist"]
         devIDList = [int(x) for x in devIDListStr]
         ulDevInit(devIDList, server, cursor)
+        brCreate(server, cursor)
     return
 
 
