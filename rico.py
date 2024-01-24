@@ -59,6 +59,9 @@ async def loadCogs():
     for cog in cogsList:
         await bot.load_extension(cog)
         print(f"{cog} cog loaded")
+    return
+
+
 # create/update database tables on start
 # self: discord.ext.commands.Bot
 @connect.db_connector_no_args
@@ -76,6 +79,7 @@ async def on_ready():
     playing = discord.Game(name="r! help")
     await bot.change_presence(activity=playing)
     print("Rico is ready!")
+    return
 
 
 @bot.event
@@ -93,7 +97,7 @@ async def on_message(message):
 async def main():
     async with bot:
         await loadCogs()
-        await bot.start(token)
+        await bot.start(token)  # login, setup_hook, connect
 
 
 asyncio.run(main())
