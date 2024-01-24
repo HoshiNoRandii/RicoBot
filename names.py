@@ -28,7 +28,7 @@ class CommandsCog(commands.Cog, name="Names"):
         name="nick",
         aliases=["nickname", "Nick", "Nickname", "NickName", "nickName", "NICKNAME"],
         brief="set friends' nicknames",
-        help="""Type `r! nick @user1 @user2 @user3 [nickname]` to change the nicknames of every mentioned user to [nickname]. You can include as many people as you want in the same command.\n
+        help="""Type `r! nick @user1 @user2 @user3 [nickname]` to change the nicknames of every mentioned user to [nickname]. You can include as many people as you want in the same command. If no [nickname] is provided, RicoBot will remove the mentioned users' nicknames.\n
 Character Limit: 32\n
 Notes:
 - Will not work if the first word in the nickname starts with `<@` and ends with `>`.
