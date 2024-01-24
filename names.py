@@ -133,10 +133,11 @@ Character Limit: 32""",
     # before and after are instances of discord.Member
     @commands.Cog.listener("on_member_update")
     @db_connector_no_args
-    async def nickUpdateListener(self, before, after, *, cursor=None):
+    async def memberUpdateListener(self, before, after, *, cursor=None):
         try:
             # if nickname changed
             if before.nick != after.nick:
+                print("nickname update:")
                 ulUpdateNickname(after.guild, after, cursor)
 
         except Exception as error:
@@ -149,12 +150,14 @@ Character Limit: 32""",
     # before and after are instances of discord.Role
     @commands.Cog.listener("on_guild_role_update")
     @db_connector_no_args
-    async def nameUpdateListener(self, before, after, *, cursor=None):
+    async def roleUpdateListener(self, before, after, *, cursor=None):
         try:
             server = before.guild
 
-            # manual name role update
-            if isNameRole(before, server, cursor):
+            # name role update
+            if isNameRole(before, cursor):
+                print("name role update:")
+                brUpdate(after, "name", cursor)
                 for member in after.members:
                     ulUpdateName(server, member, cursor, after.name)
 
