@@ -39,7 +39,7 @@ Notes:
         try:
             # check that there are at least 2 arguments
             # and that the first argument is a user mention
-            if (len(args) < 2) or (not isUserMent(args[0])):
+            if (len(args) < 1) or (not isUserMent(args[0])):
                 await syntaxError(ctx)
                 return
 
@@ -48,7 +48,7 @@ Notes:
             # uses the fact that user mentions start with '<@' and end with '>'
             # so the first word in the nickname can't follow this pattern.
             nnameIndex = 0
-            while isUserMent(args[nnameIndex]):
+            while nnameIndex < len(args) and isUserMent(args[nnameIndex]):
                 nnameIndex += 1
             # slice off the nickname
             nnameList = args[nnameIndex:]
