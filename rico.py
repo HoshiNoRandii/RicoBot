@@ -24,8 +24,11 @@ import logging
 # so that we can connect to the postgres server
 import connect
 
+# to read list of dev user ID's
+from config import config
+
 # to build/refresh the database on start
-from database.user_list import ulCreate, ulPopulate
+from database.user_list import ulCreate, ulDevInit, ulPopulate
 
 # set to True for [BETA] RicoBot
 BETA = True
@@ -70,6 +73,9 @@ async def dbStartup(*, cursor=None):
         print(f"Initializing user_list table for {server.name}...")
         ulCreate(server, cursor)
         ulPopulate(server, cursor)
+        devIDListStr = config(section="developers", listVals=True)["devlist"]
+        devIDList = [int(x) for x in devIDListStr]
+        ulDevInit(devIDList, server, cursor)
     return
 
 

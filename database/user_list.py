@@ -58,6 +58,28 @@ def ulPopulate(server, cursor):
     return
 
 
+# set dev_flag of all users in devList to True
+# devIDList is a list of user ID's
+def ulDevInit(devIDList, server, cursor):
+    try:
+        serverID = server.id
+        tableName = f"user_list_{serverID}"
+
+        for userID in devIDList:
+            update = f"""
+            UPDATE {tableName}
+            SET dev_flag = TRUE
+            WHERE user_id = {userID}
+            """
+            cursor.execute(update)
+        print("developer dev_flags set to True")
+
+    except Exception as error:
+        print(error)
+
+    return
+
+
 # get functions
 
 
