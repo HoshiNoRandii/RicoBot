@@ -16,6 +16,8 @@ from database.user_list import (
     ulUpdateNickname,
 )
 
+from database.bot_roles import brUpdate, isNameRole
+
 
 class CommandsCog(commands.Cog, name="Names"):
     def __init__(self, bot):
@@ -205,23 +207,17 @@ async def updateName(server, member, cursor, newName=None):
 
     # check for existing name role
     for role in member.roles:
-        if isNameRole(role, server, cursor):
+        if isNameRole(role, cursor):
             await role.edit(name=f"{newName}")
             # listener will push newName to db
             return
 
     # if no existing name role, create one
     role = await server.create_role(name=f"{newName}")
+    brUpdate(role, "name", cursor)  # register role as managed by RicoBot
     await member.add_roles(role)
     ulUpdateName(server, member, cursor, newName)
     return
-
-
-# isNameRole checks if a role is a "name role",
-# i.e. its name matches a name in the user_list table
-def isNameRole(role, server, cursor):
-    nameList = ulGetNameList(server, cursor)
-    return role.name in nameList
 
 
 ## necessary to link the cog to the main file
