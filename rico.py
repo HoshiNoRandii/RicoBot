@@ -24,6 +24,9 @@ import logging
 # so that we can connect to the postgres server
 import connect
 
+# to build/refresh the database on start
+from database.user_list import ulCreate, ulPopulate
+
 # set to True for [BETA] RicoBot
 BETA = True
 
@@ -56,10 +59,20 @@ async def loadCogs():
     for cog in cogsList:
         await bot.load_extension(cog)
         print(f"{cog} cog loaded")
+# create/update database tables on start
+# self: discord.ext.commands.Bot
+@connect.db_connector_no_args
+async def dbStartup(*, cursor=None):
+    for server in bot.guilds:
+        print(f"Initializing user_list table for {server.name}...")
+        ulCreate(server, cursor)
+        ulPopulate(server, cursor)
+    return
 
 
 @bot.event
 async def on_ready():
+    await dbStartup()  # refresh database
     playing = discord.Game(name="r! help")
     await bot.change_presence(activity=playing)
     print("Rico is ready!")
