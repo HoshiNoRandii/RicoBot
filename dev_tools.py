@@ -12,6 +12,7 @@ import asyncio
 # to the postgres server
 # creates an async function
 from connect import db_connector_no_args, db_connector_with_args
+from database.bot_roles import brCreate
 
 from database.user_list import (
     ulCreate,
@@ -63,9 +64,24 @@ class CommandsCog(commands.Cog, name="Dev Tools"):
         help="create user_list table",
     )
     @db_connector_no_args
+    @dev_only
     async def createUserList(self, ctx, *, cursor=None):
         ulCreate(ctx.guild, cursor)
         ulPopulate(ctx.guild, cursor)
+        return
+
+    ## createBotRoleList: create the bot_roles table in the database
+    # bot_roles table has the columns:
+    #   role_id, type, name, member
+    @commands.command(
+        name="createBotRoleList",
+        brief="create bot_roles table",
+        help="create bot_roles table",
+    )
+    @db_connector_no_args
+    @dev_only
+    async def createBotRoleList(self, ctx, *, cursor=None):
+        brCreate(ctx.guild, cursor)
         return
 
     ## forbidden: check if you are a dev in the db
