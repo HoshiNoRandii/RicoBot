@@ -214,8 +214,8 @@ async def updateName(server, member, cursor, newName=None):
 
     # if no existing name role, create one
     role = await server.create_role(name=f"{newName}")
-    brUpdate(role, "name", cursor)  # register role as managed by RicoBot
     await member.add_roles(role)
+    brUpdate(role, "name", cursor)  # register role as managed by RicoBot
     ulUpdateName(server, member, cursor, newName)
     return
 
