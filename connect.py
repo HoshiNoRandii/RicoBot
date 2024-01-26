@@ -10,8 +10,14 @@ from functools import wraps
 from config import config
 
 
-# init: create the global connPool
 def init():
+    """
+    Create the global connection pool connPool
+
+    connPool: psycopg2.pool.SimpleConnectionPool
+
+    returns: none
+    """
     # read connection parameters
     params = config()
 
@@ -28,6 +34,14 @@ def init():
 # connectPool: create the connection pool
 # params arg is a dict with the connection parameters
 def connectPool(params):
+    """
+    Create a connection pool
+
+    args:
+       params: dict
+
+    returns: psycopg2.pool.SimpleConnectionPool | None
+    """
     try:
         # create the pool
         connPool = pool.SimpleConnectionPool(1, 20, **params)
@@ -49,12 +63,15 @@ def closePool(connPool):
     return
 
 
-# decorator function for commands that will access the
-# postgres database and take no arguments
-# any function wrapped with db_connector_no_args must have
-# cursor as a keyword only argument
-# and also must be an async function
 def db_connector_no_args(func):
+    """
+    Decorator function for commands that will access the postgres database and take no arguments
+
+    Any function wrapped with db_connector_no_args must:
+        - have "cursor" as a keyword only argument
+        - be an async function.
+    """
+
     # wrapper function
     @wraps(func)
     async def inner(*args, **kwargs):
@@ -99,13 +116,16 @@ def db_connector_no_args(func):
     return inner
 
 
-# decorator function for commands that will access the
-# postgres database and take arguments
-# any function wrapped with db_connector_with_args must have
-# (self, ctx) as the first two arguments and
-# cursor as a keyword only argument
-# and also must be an async function
 def db_connector_with_args(func):
+    """
+    Decorator function for commands that will access the postgres database and take arguments
+
+    Any function wrapped with db_connector_with_args must:
+        - have (self, ctx) as the first two arguments
+        - have cursor as a keyword only argument
+        - be an async function
+    """
+
     # wrapper function
     @wraps(func)
     async def inner(self, ctx, *args, **kwargs):
