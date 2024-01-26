@@ -56,10 +56,19 @@ def connectPool(params):
     return connPool
 
 
-# closePool(connPool): close the connection pool connPool
-def closePool(connPool):
-    connPool._closeall()
-    print("Connection pool is closed")
+def closePool(pool=connPool):
+    """
+    Close a connection pool
+
+    args:
+        pool: psycopg2.pool.SimpleConnectionPool | None
+            default argument is the global connPool
+
+    returns: None
+    """
+    if pool != None:
+        pool.closeall()
+        print("Connection pool is closed")
     return
 
 
