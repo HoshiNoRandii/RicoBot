@@ -31,8 +31,6 @@ def init():
     return
 
 
-# connectPool: create the connection pool
-# params arg is a dict with the connection parameters
 def connectPool(params):
     """
     Create a connection pool
