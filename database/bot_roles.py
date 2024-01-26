@@ -3,9 +3,7 @@
 ### by RicoBot
 
 # columns in the bot_roles table
-# note that currently there may only be one member per role
-# managed by RicoBot
-botRolesColumns = ["role_id", "type", "name", "member_id"]
+botRolesColumns = ["role_id", "type", "name"]
 botRolesTypes = ["name"]
 
 ### TODO get this and the user_list table created on init
@@ -22,8 +20,7 @@ def brCreate(server, cursor):
             CREATE TABLE IF NOT EXISTS {tableName} (
                 role_id BIGINT PRIMARY KEY,
                 type TEXT,
-                name TEXT,
-                member_id BIGINT REFERENCES user_list_{serverID}(user_id) ON DELETE CASCADE
+                name TEXT
             )
             """
         cursor.execute(createTable)
@@ -51,10 +48,9 @@ def brUpdate(role, brType, cursor):
         tableName = f"bot_roles_{serverID}"
         roleID = role.id
         roleName = role.name
-        roleMemberID = role.members[0].id
         insertInto = f"""
-            INSERT INTO {tableName} (role_id, type, name, member_id)
-            VALUES ({roleID}, '{brType}', '{roleName}', {roleMemberID})
+            INSERT INTO {tableName} (role_id, type, name)
+            VALUES ({roleID}, '{brType}', '{roleName}')
             ON CONFLICT (role_id)
             DO
                 UPDATE SET name = '{roleName}'

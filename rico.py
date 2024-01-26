@@ -27,6 +27,7 @@ import connect
 # to read list of admin user ID's
 from config import config
 from database.bot_roles import brCreate
+from database.role_membership import rmCreate
 
 # to build/refresh the database on start
 from database.user_list import ulCreate, ulAdminInit, ulPopulate
@@ -78,6 +79,7 @@ async def dbStartup(*, cursor=None):
         adminIDList = [int(x) for x in adminIDListStr]
         ulAdminInit(adminIDList, server, cursor)
         brCreate(server, cursor)
+        rmCreate(server, cursor)
     return
 
 
