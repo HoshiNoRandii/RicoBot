@@ -4,7 +4,7 @@
 # so that we can use the Discord API
 from discord.ext import commands
 
-from other_cmds import syntaxError
+from utils import isUserMent, syntaxError
 
 # so that we can use the connection pool to connect
 # to the postgres server

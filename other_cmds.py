@@ -5,15 +5,7 @@
 import discord
 from discord.ext import commands
 
-
-## function to handle syntax erros
-# will be called from various commands or events
-async def syntaxError(ctx):
-    syntaxErrorMsg = """Um... I'm not exactly sure what you're asking for.
-Make sure you don't have any extra spaces in your message.
-You can type `r! help` for a list of valid commands, or `r! help [command]` for information about a specific command."""
-    await ctx.channel.send(syntaxErrorMsg)
-    return
+from utils import syntaxError
 
 
 class CommandsCog(commands.Cog, name="Other Commands"):
