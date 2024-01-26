@@ -10,6 +10,8 @@ def rmCreate(server, cursor):
     """
     Create the role_membership table
 
+    The role_membership table stores information about which users are assigned to which of the roles managed by RicoBot. Each row contains a user_id and a role_id for a role that the user is assigned to.
+
     args:
         server: discord.Guild
             the discord server that the table corresponds to
