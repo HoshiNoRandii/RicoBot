@@ -33,6 +33,7 @@ def brCreate(server, cursor):
     return
 
 
+## update functions ##
 
 
 # update role info in bot_roles table
@@ -65,28 +66,49 @@ def brUpdate(role, brType, cursor):
     return
 
 
-# check if a role is a role managed by RicoBot
-# role: discord.Role
-def isBotRole(role, cursor):
-    return brGetType(role, cursor) != None
+# remove a role from the bot_roles table
+def brDelete(role, cursor):
+    try:
+        serverID = role.guild.id
+        tableName = f"bot_roles_{serverID}"
+        roleID = role.id
+        delete = f"""
+        DELETE FROM {tableName}
+        WHERE role_id = {roleID}
+        """
+        cursor.execute(delete)
+        print(f"{role.name} role removed from bot_roles table")
+
+    except Exception as error:
+        print(error)
+
+    return
 
 
-# get the type of a role
+## get functions ##
+
+
+# get info about a role
 # role: discord.Role
-def brGetType(role, cursor):
+def brGet(column, role, cursor):
+    # check that column is valid
+    if column not in botRolesColumns:
+        print(f'no column named "{column}" in bot_role table')
+        return
+    # column is valid, grab info
     try:
         serverID = role.guild.id
         tableName = f"bot_roles_{serverID}"
         roleID = role.id
         select = f"""
-           SELECT type FROM {tableName}
+           SELECT {column} FROM {tableName}
            WHERE role_id = {roleID}
            """
         cursor.execute(select)
         # cursor.fetchall() returns a list of tuples, where each tuple
         # is a returned row
         # if the role is in the table,
-        # this cursor.fetchall() should return [(type,)]
+        # this cursor.fetchall() should return [(info,)]
         # otherwise it should return []
         matches = cursor.fetchall()
 
@@ -103,9 +125,42 @@ def brGetType(role, cursor):
     return
 
 
-# check if a role is of a specified type
+# get the type of a role
 # role: discord.Role
+def brGetType(role, cursor):
+    return brGet("type", role, cursor)
+
+
+## Bool functions ##
+
+
+def isBotRole(role, cursor):
+    """
+    Check if a role is managed by RicoBot
+
+    args:
+        role: discord.Role
+        cursor: psycopg2.cursor
+
+    returns: Bool
+    """
+    return brGetType(role, cursor) != None
+
+
 def isTypeRole(role, brType, cursor):
+    """
+    Check if a role is of a specified type
+
+    args:
+        role: discord.Role
+
+        brType: str
+            brType should be a member of botRolesTypes
+
+        cursor: psycopg2.cursor
+
+    returns: Bool
+    """
     # check that type is valid
     if brType not in botRolesTypes:
         print(f'invalid bot role type "{brType}"')
@@ -114,7 +169,14 @@ def isTypeRole(role, brType, cursor):
     return brGetType(role, cursor) == brType
 
 
-# check if a role is a name role
-# role: discord.Role
 def isNameRole(role, cursor):
+    """
+    Check if a role is a name role
+
+    args:
+        role: discord.Role
+        cursor: psycopg2.cursor
+
+    returns: Bool
+    """
     return isTypeRole(role, "name", cursor)
