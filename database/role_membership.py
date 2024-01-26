@@ -6,9 +6,17 @@
 roleMembershipColumns = ["user_id", "role_id"]
 
 
-# create the role_membership table
-# server: discord.Guild
 def rmCreate(server, cursor):
+    """
+    Create the role_membership table
+
+    args:
+        server: discord.Guild
+            the discord server that the table corresponds to
+        cursor: psycopg2.cursor
+
+    returns: None
+    """
     try:
         print("Creating role_membership table...")
         serverID = server.id
