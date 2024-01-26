@@ -66,9 +66,9 @@ Character Limit: 100""",
                 description="Here's a list of all of RicoBot's commands. For more information on a specific command, type `r! help [command name]`.",
                 color=discord.Color.dark_gold(),
             )
-            # generator to not include dev_tools cog
+            # generator to not include admin_tools cog
             # in the help command
-            cog_generator = (x for x in self.bot.cogs if x != "Dev Tools")
+            cog_generator = (x for x in self.bot.cogs if x != "Admin Tools")
             # iterate thru cogs
             for cog in cog_generator:
                 cmdList = []

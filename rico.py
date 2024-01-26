@@ -24,12 +24,12 @@ import logging
 # so that we can connect to the postgres server
 import connect
 
-# to read list of dev user ID's
+# to read list of admin user ID's
 from config import config
 from database.bot_roles import brCreate
 
 # to build/refresh the database on start
-from database.user_list import ulCreate, ulDevInit, ulPopulate
+from database.user_list import ulCreate, ulAdminInit, ulPopulate
 
 # set to True for [BETA] RicoBot
 BETA = True
@@ -59,7 +59,7 @@ connect.init()
 
 # load in the cogs
 async def loadCogs():
-    cogsList = ["names", "other_cmds", "dev_tools"]
+    cogsList = ["names", "other_cmds", "admin_tools"]
     for cog in cogsList:
         await bot.load_extension(cog)
         print(f"{cog} cog loaded")
@@ -74,9 +74,9 @@ async def dbStartup(*, cursor=None):
         print(f"Initializing database for {server.name}...")
         ulCreate(server, cursor)
         ulPopulate(server, cursor)
-        devIDListStr = config(section="developers", listVals=True)["devlist"]
-        devIDList = [int(x) for x in devIDListStr]
-        ulDevInit(devIDList, server, cursor)
+        adminIDListStr = config(section="admins", listVals=True)["adminlist"]
+        adminIDList = [int(x) for x in adminIDListStr]
+        ulAdminInit(adminIDList, server, cursor)
         brCreate(server, cursor)
     return
 

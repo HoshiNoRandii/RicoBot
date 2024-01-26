@@ -1,7 +1,7 @@
 ### functions related to the user_list table in the database
 
 # columns in the user_list table
-userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "dev_flag"]
+userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "admin_flag"]
 
 
 # create the user_list table
@@ -18,7 +18,7 @@ def ulCreate(server, cursor):
                name TEXT,
                pronouns TEXT,
                nickname TEXT,
-               dev_flag BOOL
+               admin_flag BOOL
            )
            """
         cursor.execute(createTable)
@@ -42,7 +42,7 @@ def ulPopulate(server, cursor):
             mUsername = member.name
             mNickname = member.nick
             insertInto = f"""
-               INSERT INTO {tableName} (user_id, username, nickname, dev_flag)
+               INSERT INTO {tableName} (user_id, username, nickname, admin_flag)
                VALUES ({mUserID}, '{mUsername}', '{mNickname}', FALSE)
                ON CONFLICT (user_id)
                DO
@@ -58,21 +58,21 @@ def ulPopulate(server, cursor):
     return
 
 
-# set dev_flag of all users in devList to True
-# devIDList is a list of user ID's
-def ulDevInit(devIDList, server, cursor):
+# set admin_flag of all users in adminList to True
+# adminIDList is a list of user ID's
+def ulAdminInit(adminIDList, server, cursor):
     try:
         serverID = server.id
         tableName = f"user_list_{serverID}"
 
-        for userID in devIDList:
+        for userID in adminIDList:
             update = f"""
             UPDATE {tableName}
-            SET dev_flag = TRUE
+            SET admin_flag = TRUE
             WHERE user_id = {userID}
             """
             cursor.execute(update)
-        print("developer dev_flags set to True")
+        print("admin admin_flags set to True")
 
     except Exception as error:
         print(error)
@@ -168,11 +168,11 @@ def ulGetPronouns(server, member, cursor):
     return ulGet("pronouns", server, member, cursor)
 
 
-# gets a user's dev status from the database
+# gets a user's admin status from the database
 # server arg is an instance of discord.Guild
 # member arg is an instance of discord.Member
-def ulGetDevFlag(server, member, cursor):
-    return ulGet("dev_flag", server, member, cursor)
+def ulGetAdminFlag(server, member, cursor):
+    return ulGet("admin_flag", server, member, cursor)
 
 
 # gets the list of all user id's in the database
