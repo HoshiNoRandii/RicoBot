@@ -81,7 +81,7 @@ def ulAdminInit(adminIDList, server, cursor):
     return
 
 
-# get functions
+## get functions ##
 
 
 # gets a user's info from the selected column
@@ -195,7 +195,7 @@ def ulGetPronounList(server, cursor):
     return ulGetList("pronouns", server, cursor)
 
 
-# update functions
+## update functions ##
 
 
 # udpate a user's info in the database in the selected column
@@ -284,3 +284,6 @@ def ulUpdateNickname(server, member, cursor):
 # server arg is an instance of discord.Guild
 def ulUpdateNameCol(newNames, server, cursor):
     return ulUpdateColumn("name", newNames, server, cursor)
+
+
+## Bool functions ##
