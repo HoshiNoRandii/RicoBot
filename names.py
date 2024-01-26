@@ -23,8 +23,6 @@ class CommandsCog(commands.Cog, name="Names"):
     def __init__(self, bot):
         self.bot = bot
 
-    ## nick: change the nickname of the mentioned people
-    # syntax: r! nick @user1 @user2 ... [nickname]
     @commands.command(
         name="nick",
         aliases=["nickname", "Nick", "Nickname", "NickName", "nickName", "NICKNAME"],
@@ -37,6 +35,11 @@ Notes:
     )
     @db_connector_with_args
     async def nick(self, ctx, *args, cursor=None):
+        """
+        Command to change the nickname of the mentioned people
+
+        syntax: r! nick @user1 @user2 ... [nickname]
+        """
         try:
             # check that there are at least 2 arguments
             # and that the first argument is a user mention
@@ -71,8 +74,6 @@ Notes:
 
         return
 
-    ## setname: set your name
-    # syntax: r! setname [name]
     @commands.command(
         name="setname",
         aliases=["setName", "Setname", "SetName", "SETNAME"],
@@ -82,6 +83,11 @@ Character Limit: 32""",
     )
     @db_connector_with_args
     async def setName(self, ctx, *args, cursor=None):
+        """
+        Command to set your own name
+
+        syntax: r! setname [name]
+        """
         try:
             newName = " ".join(args)
             # check that name isn't too long
@@ -96,8 +102,6 @@ Character Limit: 32""",
 
         return
 
-    ## getname: get the name of a server member
-    # syntax: r! getname [name]
     @commands.command(
         name="getname",
         aliases=["getName", "Getname", "GetName", "GETNAME"],
@@ -106,6 +110,11 @@ Character Limit: 32""",
     )
     @db_connector_no_args
     async def getName(self, ctx, *, cursor=None):
+        """
+        Command to get the name of mentioned server members
+
+        syntax: r! getname @user1 @user2 ...
+        """
         try:
             msg = ""
             for friend in ctx.message.mentions:
@@ -130,12 +139,19 @@ Character Limit: 32""",
 
         return
 
-    ## make sure to update the db if somebody
-    # makes manual changes to their nickname
-    # before and after are instances of discord.Member
     @commands.Cog.listener("on_member_update")
     @db_connector_no_args
     async def memberUpdateListener(self, before, after, *, cursor=None):
+        """
+        Listener that updates the user_list if somebody changes their nickname
+
+        args:
+            before: discord.Member
+            after: discord.Member
+            cursor: psycopg2.cursor
+
+        returns: None
+        """
         try:
             # if nickname changed
             if before.nick != after.nick:
@@ -147,19 +163,25 @@ Character Limit: 32""",
 
         return
 
-    ## make sure to update the db if somebody
-    # makes manual changes to their name role
-    # before and after are instances of discord.Role
     @commands.Cog.listener("on_guild_role_update")
     @db_connector_no_args
     async def roleUpdateListener(self, before, after, *, cursor=None):
-        try:
-            server = before.guild
+        """
+        Listener that updates the bot_roles table if a user edits their name role
 
+        args:
+            before: discord.Role
+            after: discord.Role
+            cursor: psycopg2.cursor
+
+        returns: None
+        """
+        try:
             # name role update
             if isNameRole(before, cursor):
                 print("name role update:")
                 brUpdate(after, "name", cursor)
+                server = before.guild
                 for member in after.members:
                     ulUpdateName(server, member, cursor, after.name)
 
@@ -169,22 +191,24 @@ Character Limit: 32""",
         return
 
 
+
+
 ## helper functions ##
 
 
-## isUserMent(word): str -> bool
-# returns True if word is a user mention
-# uses the fact that user mentions begin with <@ and end with >
-# assumes that word does not contain any whitespace
-def isUserMent(word):
-    return word.startswith("<@") and word.endswith(">")
-
-
-# updates a user's nickname in the server
-# listener will push update to the user_list table
-# ctx argument is an instance of discord.ext.commands.Context
-# member argument is an instance of discord.Member
 async def updateNickname(ctx, member, newNick):
+    """
+    Updates a user's nickname in the server
+
+    memberUpdateListener will push the change through to the user_list table
+
+    args:
+        ctx: discord.ext.commands.Context
+        member: discord.Member
+        newNick: def __str__(self):
+
+    returns: None
+    """
     if member == ctx.guild.owner:
         await ctx.channel.send(f"{member.mention} change your nickname!!")
     else:
@@ -194,13 +218,20 @@ async def updateNickname(ctx, member, newNick):
     return
 
 
-# updates a user's name role
-# and their name in the user_list
-# server argument is an instance of discord.Guild
-# member argument is an instance of discord.Member
-# if no newName is provided, name will update to the one
-# stored in the database
 async def updateName(server, member, cursor, newName=None):
+    """
+    Updates a user's name role and their name in the user_list and updates the role_membership table
+
+    If no newName is provided, the name role will update to the name stored in the user_list.
+
+    args:
+        server: discord.Guild
+        member: discord.User
+        cursor: psycopg2.cursor
+        newName: (optional) str
+
+    returns: None
+    """
     if newName == None:
         # grab name from database if none provided
         newName = ulGetName(server, member, cursor)
