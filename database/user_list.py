@@ -8,6 +8,7 @@ userListColumns = ["user_id", "username", "name", "pronouns", "nickname", "admin
 # server: discord.Guild
 def ulCreate(server, cursor):
     try:
+        print("Creating user_list table...")
         # create table
         serverID = server.id
         tableName = f"user_list_{serverID}"

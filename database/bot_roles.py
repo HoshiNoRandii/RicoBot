@@ -14,6 +14,7 @@ botRolesTypes = ["name"]
 # server: discord.Guild
 def brCreate(server, cursor):
     try:
+        print("Creating bot_roles table...")
         serverID = server.id
         tableName = f"bot_roles_{serverID}"
         createTable = f"""
