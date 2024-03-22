@@ -3,6 +3,7 @@
 
 # so that we can use the Discord API
 from discord.ext import commands
+from database.role_membership import rmUpdate, rmGetUserIDs
 
 from utils import isUserMent, syntaxError
 
@@ -16,7 +17,7 @@ from database.user_list import (
     ulUpdateNickname,
 )
 
-from database.bot_roles import brUpdate, isNameRole
+from database.bot_roles import brDelete, brUpdate, isNameRole
 
 
 class CommandsCog(commands.Cog, name="Names"):
@@ -190,6 +191,41 @@ Character Limit: 32""",
 
         return
 
+    @commands.Cog.listener("on_guild_role_delete")
+    @db_connector_no_args
+    async def roleDeleteListener(self, role, *, cursor=None):
+        """
+        Listener that will remake a bot-managed role if it is deleted
+
+        args:
+            role: discord.Role
+            cursor: psycopg2.cursor
+
+        returns: None
+        """
+        try:
+            # name role deleted
+            if isNameRole(role, cursor):
+                print("name role deleted:")
+                # create a new role with the same name
+                server = role.guild
+                newRole = await server.create_role(name=f"{role.name}")
+                # register newRole as managed by RicoBot
+                brUpdate(newRole, "name", cursor)
+                # assign newRole to all members of (old) role
+                for userID in rmGetUserIDs(role, cursor):
+                    member = server.get_member(userID)
+                    await member.add_roles(newRole)
+                    rmUpdate(member, newRole, cursor)
+                # remove role from bot_roles table
+                brDelete(role, cursor)
+
+        except Exception as error:
+            print(error)
+
+        return
+
+    # TODO listen for if somebody is removed from their name role to put them back
 
 
 
@@ -247,6 +283,7 @@ async def updateName(server, member, cursor, newName=None):
     role = await server.create_role(name=f"{newName}")
     await member.add_roles(role)
     brUpdate(role, "name", cursor)  # register role as managed by RicoBot
+    rmUpdate(member, role, cursor)  # register user and role to role_membership table
     ulUpdateName(server, member, cursor, newName)
     return
 
