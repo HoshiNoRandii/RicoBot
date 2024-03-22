@@ -36,10 +36,18 @@ def brCreate(server, cursor):
 ## update functions ##
 
 
-# update role info in bot_roles table
-# if role is not already in the table, insert it
-# role: discord.Role
 def brUpdate(role, brType, cursor):
+    """
+    Update role info in bot_roles table.
+    If the role is not already in the table, insert it.
+
+    args:
+        role: discord.Role
+        brType: str
+        cursor: psycopg2.cursor
+
+    returns: None
+    """
     # check that type is valid
     if brType not in botRolesTypes:
         print(f'invalid bot role type "{brType}"')
@@ -66,8 +74,16 @@ def brUpdate(role, brType, cursor):
     return
 
 
-# remove a role from the bot_roles table
 def brDelete(role, cursor):
+    """
+    Remove a role from the bot_roles table.
+
+    args:
+        role: discord.Role
+        cursor: psycopg2.cursor
+
+    returns: None
+    """
     try:
         serverID = role.guild.id
         tableName = f"bot_roles_{serverID}"
@@ -105,10 +121,10 @@ def brGet(column, role, cursor):
            WHERE role_id = {roleID}
            """
         cursor.execute(select)
-        # cursor.fetchall() returns a list of tuples, where each tuple
-        # is a returned row
+        # cursor.fetchall() returns a list of tuples,
+        # where each tuple is a returned row
         # if the role is in the table,
-        # this cursor.fetchall() should return [(info,)]
+        # this cursor.fetchall() returns [(info,)]
         # otherwise it should return []
         matches = cursor.fetchall()
 
