@@ -54,13 +54,12 @@ def connectPool(params):
     return connPool
 
 
-def closePool(pool=connPool):
+def closePool(pool):
     """
     Close a connection pool
 
     args:
         pool: psycopg2.pool.SimpleConnectionPool | None
-            default argument is the global connPool
 
     returns: None
     """
