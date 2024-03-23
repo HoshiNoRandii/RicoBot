@@ -52,44 +52,11 @@ Character Limit: 100""",
 
         # general help
         if len(args) == 0:
-            # start building embed
-            emb = discord.Embed(
-                title="RicoBot Help",
-                description="Here's a list of all of RicoBot's commands. For more information on a specific command, type `r! help [command name]`.",
-                color=discord.Color.dark_gold(),
-            )
-            # generator to not include admin_tools cog
-            # in the help command
-            cog_generator = (x for x in self.bot.cogs if x != "Admin Tools")
-            # iterate thru cogs
-            for cog in cog_generator:
-                cmdList = []
-                # self.bot.cogs is a dictionary whose entries have the name of
-                # the cog as a key and the cog itself as the value.
-                # when we iterate, we just get the keys. need to use them
-                # like indexes to grab the value.
-                for cmd in self.bot.cogs[cog].walk_commands():
-                    # only add commands that aren't hidden
-                    if not cmd.hidden:
-                        cmdList.append(f"{cmd.name}: *{cmd.brief}*")
-                if len(cmdList) > 0:
-                    cmdList.sort()
-                    cmdList = "\n".join(cmdList)
-                    # add to embed
-                    emb.add_field(name=cog, value=cmdList, inline=False)
+            emb = await self.helpGeneral()
 
         # specific command help
         elif len(args) == 1:
-            # get the command
-            cmd = self.bot.get_command(args[0])
-            # check if it's a valid command
-            if cmd == None:
-                await ctx.channel.send(
-                    "That's not something I can do. Type `r! help` for a list of valid commands."
-                )
-            # build the embed
-            emb = discord.Embed(title="RicoBot Help", color=discord.Color.dark_gold())
-            emb.add_field(name=cmd.name, value=cmd.help, inline=False)
+            emb = await self.helpCommand(ctx, *args)
 
         # if too many arguments
         elif len(args) > 1:
@@ -102,6 +69,46 @@ Character Limit: 100""",
         if emb:
             await ctx.channel.send(embed=emb)
         return
+
+    async def helpGeneral(self):
+        # start building embed
+        emb = discord.Embed(
+            title="RicoBot Help",
+            description="Here's a list of all of RicoBot's commands. For more information on a specific command, type `r! help [command name]`.",
+            color=discord.Color.dark_gold(),
+        )
+        # generator to not include admin_tools cog
+        # in the help command
+        cog_generator = (x for x in self.bot.cogs if x != "Admin Tools")
+        # iterate thru cogs
+        for cog in cog_generator:
+            cmdList = []
+            # self.bot.cogs is a dictionary whose entries have the name of
+            # the cog as a key and the cog itself as the value.
+            for cmd in self.bot.cogs[cog].walk_commands():
+                # only add commands that aren't hidden
+                if not cmd.hidden:
+                    cmdList.append(f"{cmd.name}: *{cmd.brief}*")
+            if len(cmdList) > 0:
+                cmdList.sort()
+                cmdList = "\n".join(cmdList)
+                # add to embed
+                emb.add_field(name=cog, value=cmdList, inline=False)
+
+        return emb
+
+    async def helpCommand(self, ctx, *args):
+        # get the command
+        cmd = self.bot.get_command(args[0])
+        # check if it's a valid command
+        if cmd == None:
+            await ctx.channel.send(
+                "That's not something I can do. Type `r! help` for a list of valid commands."
+            )
+        # build the embed
+        emb = discord.Embed(title="RicoBot Help", color=discord.Color.dark_gold())
+        emb.add_field(name=cmd.name, value=cmd.help, inline=False)
+        return emb
 
     ## detect when somebody has tried to call RicoBot but has used an
     # invalid command
