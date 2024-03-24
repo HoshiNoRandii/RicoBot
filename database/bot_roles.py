@@ -10,9 +10,16 @@ botRolesTypes = ["name"]
 ### still need to test all these funcs!
 
 
-# create the bot_roles table
-# server: discord.Guild
 def brCreate(server, cursor):
+    """
+    Create the bot_roles table for the server.
+
+    args:
+        server: discord.Guild
+        cursor: psycopg2.cursor
+
+    returns: None
+    """
     try:
         print("Creating bot_roles table...")
         serverID = server.id
@@ -104,9 +111,17 @@ def brDelete(role, cursor):
 ## get functions ##
 
 
-# get info about a role
-# role: discord.Role
 def brGet(column, role, cursor):
+    """
+    Get info about a role.
+
+    args:
+        column: str
+        role: discord.Role
+        cursor: psycopg2.cursor
+
+    returns: str|None
+    """
     # check that column is valid
     if column not in botRolesColumns:
         print(f'no column named "{column}" in bot_role table')
@@ -141,9 +156,16 @@ def brGet(column, role, cursor):
     return
 
 
-# get the type of a role
-# role: discord.Role
 def brGetType(role, cursor):
+    """
+    Get the type of a role.
+
+    args:
+        role: discord.Role
+        cursor: psycopg2.cursor
+
+    returns: str|None
+    """
     return brGet("type", role, cursor)
 
 
